@@ -1,0 +1,25 @@
+# --- .NET / Visual Studio ---
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+*.userprefs
+project.lock.json
+project.lock.assets.json
+*.pidb
+*.lock
+appsettings.Development.json
+
+# --- Banco de Dados Local (SQLite) ---
+*.db
+*.db-shm
+*.db-wal
+guardia_vault.db
+
+# --- Sistema Operacional ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
