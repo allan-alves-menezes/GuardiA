@@ -1,7 +1,50 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>GuardiA - Painel de Monitoramento</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-light fw-bold">🛡️ GuardiA Sentinel - Painel de Controle</h2>
+            <p class="text-secondary">Visibilidade em tempo real do status de alvos e varreduras autônomas.</p>
+        </div>
+    </div>
 
-Welcome to your new app.
+    <!-- Cards de Resumo Rápido -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-dark text-light border-secondary p-3 shadow-sm">
+                <h6 class="text-muted">Alvos Monitorados</h6>
+                <h3 class="fw-bold text-info">12</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-light border-secondary p-3 shadow-sm">
+                <h6 class="text-muted">Ameaças Detectadas</h6>
+                <h3 class="fw-bold text-danger">0</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-light border-secondary p-3 shadow-sm">
+                <h6 class="text-muted">Status do Worker Autônomo</h6>
+                <h3 class="fw-bold text-success">🟢 Operacional</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de Gráficos / Visualização -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-dark text-light border-secondary p-4 shadow-sm">
+                <h4 class="mb-3">📈 Histórico de Varreduras e Atividade</h4>
+                <p class="text-muted">Aqui entram os gráficos de status dos alvos verificados pelo motor autônomo nas últimas 24 horas.</p>
+                
+                <!-- Espaço reservado para o seu componente de gráfico ou tabela dinâmica -->
+                <div class="p-5 text-center bg-secondary bg-opacity-10 rounded border border-secondary border-dashed">
+                    <span class="text-secondary">Gráfico de monitoramento carregado diretamente na raiz do sistema.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

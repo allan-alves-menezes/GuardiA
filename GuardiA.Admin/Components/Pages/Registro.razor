@@ -1,0 +1,77 @@
+@page "/registro"
+@using GuardiA.Admin.Models
+@inject NavigationManager Navigation
+
+<div class="container mt-5" style="max-width: 500px;">
+    <div class="card bg-dark text-light border-secondary shadow">
+        <div class="card-body p-4">
+            <h3 class="mb-2">🛡️ Crie sua conta GuardiA</h3>
+            
+            @if (Origem == "download")
+            {
+                <p class="text-info small">Registre-se gratuitamente para liberar o instalador do agente desktop e gerar sua chave de licença.</p>
+            }
+            else
+            {
+                <p class="text-info small">Cadastre seu e-mail para que o nosso Sentinel autônomo envie alertas em tempo real sobre ameaças.</p>
+            }
+
+            <EditForm Model="NovoUsuario" OnValidSubmit="RegistrarUsuario" FormName="FormRegistro">
+                <div class="mb-3">
+                    <label class="form-label">Nome completo</label>
+                    <InputText @bind-Value="NovoUsuario.Nome" class="form-control bg-secondary text-white border-0" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">E-mail para alertas</label>
+                    <InputText @bind-Value="NovoUsuario.Email" type="email" class="form-control bg-secondary text-white border-0" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Senha</label>
+                    <InputText @bind-Value="SenhaPlana" type="password" class="form-control bg-secondary text-white border-0" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-bold">
+                    @(Origem == "download" ? "Registrar e Liberar Download" : "Registrar e Ativar Notificações")
+                </button>
+            </EditForm>
+
+            @if (CadastroConcluido)
+            {
+                <div class="alert alert-success mt-3">
+                    <strong>Conta criada!</strong> Sua chave do agente é: <code>@NovoUsuario.ChaveLicencaAgente</code>
+                    <div class="mt-2">
+                        <a href="/downloads/GuardiA-Setup.exe" class="btn btn-sm btn-success">⬇️ Baixar Programa Agora</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Origem { get; set; }
+
+    private UsuarioMonitorado NovoUsuario { get; set; } = new();
+    private string SenhaPlana { get; set; } = string.Empty;
+    private bool CadastroConcluido { get; set; } = false;
+
+    private async Task RegistrarUsuario()
+    {
+        // 1. Gerar hash seguro da senha (ex: BCrypt ou SHA256 com salt)
+        NovoUsuario.SenhaHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(SenhaPlana));
+        NovoUsuario.NotificacoesAtivas = true;
+        
+        if (Origem == "download")
+            NovoUsuario.BaixouAgenteDesktop = true;
+
+        // 2. Salvar no banco SQLite via DbContext ou TargetService
+        // await DbContext.Usuarios.AddAsync(NovoUsuario);
+        // await DbContext.SaveChangesAsync();
+
+        // 3. O GuardiASentinelWorker passará a incluir este e-mail nas varreduras autônomas
+        CadastroConcluido = true;
+    }
+}

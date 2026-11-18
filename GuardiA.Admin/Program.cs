@@ -7,11 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Configuração do HttpClient apontando para o Backend API (porta 5005)
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5005/") });
+// Configuração flexível do HttpClient (Lê variável de ambiente do Render ou usa localhost como padrão)
+var apiBaseUrl = builder.Configuration["API_BASE_URL"] ?? "http://localhost:5005/";
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 
 // Registro do Serviço de Alvos
 builder.Services.AddScoped<TargetService>();
+
+// 👉 REGISTRO DO WORKER AUTÔNOMO (Roda em segundo plano contínuo)
+builder.Services.AddHostedService<GuardiASentinelWorker>();
 
 var app = builder.Build();
 

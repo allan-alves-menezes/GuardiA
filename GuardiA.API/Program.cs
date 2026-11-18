@@ -241,7 +241,6 @@ try
                 if (exists == 0)
                 {
                     var insertCmd = connection.CreateCommand();
-                    // Corrigido: adicionada a vírgula ausente entre $brand e $status
                     insertCmd.CommandText = "INSERT INTO MonitoredTargets (Url, TargetBrand, LastStatus, IsActive) VALUES ($url, $brand, $status, 1);";
                     insertCmd.Parameters.AddWithValue("$url", $"https://{dominio}");
                     insertCmd.Parameters.AddWithValue("$brand", $"Typosquatting de {marcaAlvo}");

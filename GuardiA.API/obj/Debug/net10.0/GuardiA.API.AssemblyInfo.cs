@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GuardiA.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1605f5a965fd562449a0cf80780af5222d6a431f")]
 [assembly: System.Reflection.AssemblyProductAttribute("GuardiA.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GuardiA.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
