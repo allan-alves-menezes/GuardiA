@@ -1,0 +1,8 @@
+C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\obj\Debug\net10.0-windows\GuardiA.API.csproj.AssemblyReference.cache
+C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\obj\Debug\net10.0-windows\Views\LoginView.baml
+C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\obj\Debug\net10.0-windows\Views\MonitoramentoView.baml
+C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\obj\Debug\net10.0-windows\Views\CadastroEmpresaWindow.g.cs
+C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\obj\Debug\net10.0-windows\Views\LoginView.g.cs
+C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\obj\Debug\net10.0-windows\Views\MonitoramentoView.g.cs
+C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\obj\Debug\net10.0-windows\GuardiA.API_MarkupCompile.cache
+C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\obj\Debug\net10.0-windows\GuardiA.API_MarkupCompile.lref

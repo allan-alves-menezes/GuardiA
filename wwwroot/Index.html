@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuardIA - SOC & Gestão de Cibersegurança</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- TELA DE LOGIN --- */
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            background-color: var(--bg-color);
+        }
+
+        .login-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 35px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            position: relative;
+            z-index: 3;
+        }
+
+        .emblem-container {
+            margin-bottom: 25px;
+        }
+
+        .emblem-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 68px;
+            height: 68px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--accent-green);
+            border-radius: 18px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+            margin-bottom: 12px;
+        }
+
+        .login-card h2 {
+            font-size: 20px;
+            color: var(--text-main);
+            border: none;
+            margin-bottom: 5px;
+            justify-content: center;
+        }
+
+        .login-card p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* --- SISTEMA PRINCIPAL --- */
+        #appContainer {
+            display: none; 
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-brand h1 { font-size: 20px; color: var(--accent-green); }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+            margin-top: 0;
+            width: auto;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .user-session-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* KPIs */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .kpi-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 22px; font-weight: bold; color: var(--text-main); }
+
+        .subpage { display: none; }
+        .subpage.active { display: block; }
+
+        .grid-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1000px) {
+            .grid-split { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h2 { margin-top: 0; font-size: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; }
+        h3 { font-size: 11px; color: var(--accent-green); margin-bottom: 8px; margin-top: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+        }
+
+        th { color: var(--text-muted); font-weight: 600; background-color: rgba(15, 23, 42, 0.4); }
+        tr:hover { background-color: rgba(59, 130, 246, 0.04); }
+
+        .status-online { color: var(--accent-green); font-weight: bold; }
+        .status-offline { color: var(--accent-red); font-weight: bold; }
+        .alert-badge { color: var(--accent-yellow); font-weight: bold; }
+
+        .form-group { margin-bottom: 10px; text-align: left; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+
+        label { display: block; margin-bottom: 3px; font-size: 11px; color: var(--text-muted); }
+
+        input, select, button {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: #0b0f19;
+            color: var(--text-main);
+            box-sizing: border-box;
+            font-size: 12px;
+        }
+
+        input:focus, select:focus { outline: 1px solid var(--primary); }
+
+        button {
+            background-color: var(--primary);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        button:hover { background-color: var(--primary-hover); }
+
+        .btn-danger {
+            background-color: var(--accent-red);
+            padding: 4px 8px;
+            font-size: 11px;
+            width: auto;
+            margin-top: 0;
+        }
+        .btn-danger:hover { background-color: #dc2626; }
+
+        .msg { margin-top: 8px; font-size: 12px; text-align: center; }
+        .table-responsive { max-height: 420px; overflow-y: auto; }
+        .badge-role { background: #0284c7; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+
+        /* --- TOAST NOTIFICATIONS --- */
+        #toastContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            font-size: 12px;
+            min-width: 250px;
+            animation: slideIn 0.3s ease forwards;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toast.success { border-left: 4px solid var(--accent-green); }
+        .toast.error { border-left: 4px solid var(--accent-red); }
+        .toast.info { border-left: 4px solid var(--primary); }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CONTAINER DE TOASTS -->
+    <div id="toastContainer"></div>
+
+    <!-- 1. TELA DE LOGIN -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <div class="emblem-container">
+                <div class="emblem-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 2-4 7-4-1 2 6-4 4 7 1 3 4 3-4 7-1-4-4 2-6-4 1-4-7z"></path>
+                        <path d="m9 13 3-2 3 2"></path>
+                    </svg>
+                </div>
+                <h2>GuardIA SOC</h2>
+                <p>Plataforma de Monitoramento & Cibersegurança</p>
+            </div>
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="loginUser">Usuário do Operador</label>
+                    <input type="text" id="loginUser" required placeholder="Ex: analista.soc">
+                </div>
+                <div class="form-group">
+                    <label for="loginPass">Senha de Acesso</label>
+                    <input type="password" id="loginPass" required placeholder="••••••••">
+                </div>
+                <button type="submit" style="background-color: var(--accent-green); color: #000; margin-top: 15px; font-weight: bold;">Entrar no Sistema</button>
+                <div id="loginMsg" class="msg" style="color: var(--accent-red);"></div>
+            </form>
+            <div style="margin-top: 15px; font-size: 11px; color: var(--text-muted);">
+                Teste padrão: <strong>analista.soc</strong> / <strong>guardia2026</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. SISTEMA PRINCIPAL -->
+    <div class="container" id="appContainer">
+        <header>
+            <div class="header-brand">
+                <div style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-green); border-radius: 10px;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 2-4 7-4-1 2 6-4 4 7 1 3 4 3-4 7-1-4-4 2-6-4 1-4-7z"></path>
+                        <path d="m9 13 3-2 3 2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1>GuardIA SOC</h1>
+                    <span style="font-size: 11px; color: var(--text-muted);">Painel de Operações de Segurança</span>
+                </div>
+            </div>
+
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="mudarSubpagina('ficha', this)">📋 Ficha Cadastral</button>
+                <button class="tab-btn" onclick="mudarSubpagina('monitoramento', this)">🤖 Monitoramento SOC</button>
+            </div>
+
+            <div class="user-session-info">
+                <span id="loggedUserName">Operador: Ativo</span>
+                <button class="btn-danger" onclick="logout()" style="padding: 5px 10px; font-size: 11px;">Sair</button>
+            </div>
+        </header>
+
+        <!-- KPIs Globais -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-title">Clientes Atendidos</span>
+                <span class="kpi-value" id="kpiClients">--</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Funcionários Credenciados</span>
+                <span class="kpi-value" id="kpiUsers">--</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Alvos Monitorados (Robô)</span>
+                <span class="kpi-value" id="kpiTargets">--</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Estado do Perímetro</span>
+                <span class="kpi-value" style="color: var(--accent-green); font-size: 16px; margin-top: 4px;">● Protegido</span>
+            </div>
+        </div>
+
+        <!-- SUBPÁGINA 1: FICHA CADASTRAL -->
+        <div id="subpage-ficha" class="subpage active">
+            <div class="grid-split">
+                <!-- Formulário -->
+                <div class="card">
+                    <h2>Nova Ficha Cadastral de Acesso</h2>
+                    <form id="registerForm">
+                        <h3>🏢 1. Dados da Empresa Cliente</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="companyName">Razão Social</label>
+                                <input type="text" id="companyName" required placeholder="Ex: Indústria Tech Alpha S.A.">
+                            </div>
+                            <div class="form-group">
+                                <label for="cnpj">CNPJ</label>
+                                <input type="text" id="cnpj" required placeholder="00.000.000/0001-00" maxlength="18">
+                            </div>
+                        </div>
+
+                        <h3>👤 2. Dados do Funcionário do Cliente</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Nome Completo</label>
+                                <input type="text" id="fullName" required placeholder="Roberto Carlos Mendes">
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Nome de Usuário (Login)</label>
+                                <input type="text" id="username" required placeholder="roberto.mendes">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">E-mail Corporativo</label>
+                                <input type="email" id="email" placeholder="roberto@empresa.com.br">
+                            </div>
+                            <div class="form-group">
+                                <label for="cargo">Cargo / Função</label>
+                                <input type="text" id="cargo" placeholder="Analista de TI">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="password">Senha</label>
+                                <input type="password" id="password" required placeholder="••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirmar Senha</label>
+                                <input type="password" id="confirmPassword" required placeholder="••••••••">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="role">Nível de Permissão</label>
+                                <select id="role">
+                                    <option value="ClientViewer">Visualizador de Alertas</option>
+                                    <option value="ClientOperator">Operador de Segurança</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cpf">CPF</label>
+                                <input type="text" id="cpf" required placeholder="000.000.000-00" maxlength="14">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="birthDay">Dia Nasc.</label>
+                                <input type="number" id="birthDay" min="1" max="31" required placeholder="15">
+                            </div>
+                            <div class="form-group">
+                                <label for="birthMonth">Mês Nasc.</label>
+                                <select id="birthMonth" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+                                    <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+                                    <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+                                    <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="birthYear">Ano Nasc.</label>
+                                <input type="number" id="birthYear" min="1900" max="2010" required placeholder="1990">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="associatedIp">IP Autorizado (Whitelist)</label>
+                                <input type="text" id="associatedIp" placeholder="Ex: 200.150.10.5" maxlength="15">
+                            </div>
+                            <div class="form-group">
+                                <label for="city">Cidade / UF</label>
+                                <div style="display: flex; gap: 5px;">
+                                    <input type="text" id="city" required placeholder="Curitiba" style="flex: 2;">
+                                    <input type="text" id="state" required maxlength="2" placeholder="PR" style="flex: 1;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" style="background-color: var(--accent-green); color: #000; margin-top: 12px; font-weight: bold;">Cadastrar e Liberar Acesso</button>
+                        <div id="registerMsg" class="msg"></div>
+                    </form>
+                </div>
+
+                <!-- Tabela -->
+                <div class="card">
+                    <h2>
+                        <span>Acessos Liberados</span>
+                        <input type="text" id="searchFilter" placeholder="Filtrar..." style="width: 140px; padding: 4px 8px; font-size: 11px;" onkeyup="filtrarTabela()">
+                    </h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cliente / Empresa</th>
+                                    <th>Funcionário / Credencial</th>
+                                    <th>Permissão</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="colaboradoresTable">
+                                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBPÁGINA 2: MONITORAMENTO SOC -->
+        <div id="subpage-monitoramento" class="subpage">
+            <div class="grid-split">
+                <div class="card">
+                    <h2>
+                        <span>🤖 Robô SOC | Alvos e Endpoints</span>
+                        <button onclick="carregarAlvos()" style="width: auto; padding: 4px 10px; font-size: 11px; margin: 0;">Atualizar</button>
+                    </h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>URL / Ativo</th>
+                                    <th>Status</th>
+                                    <th>Última Checagem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="targetsTable">
+                                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Carregando alvos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚠️ Log de Eventos do SOC (24h)</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Horário</th>
+                                    <th>Origem</th>
+                                    <th>Evento Descrito</th>
+                                    <th>Nível</th>
+                                </tr>
+                            </thead>
+                            <tbody id="securityLogsTable">
+                                <tr>
+                                    <td>11:32:00</td>
+                                    <td>API Gateway</td>
+                                    <td>Sessão de operador iniciada com sucesso</td>
+                                    <td><span style="color: var(--accent-green);">INFO</span></td>
+                                </tr>
+                                <tr>
+                                    <td>11:15:22</td>
+                                    <td>Firewall Perimetral</td>
+                                    <td>Tentativa de força bruta IP externo bloqueada</td>
+                                    <td><span class="alert-badge">ALERTA</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MASTER_KEY_SECRETA = "guardia-master-secret-2026";
+        const nomesMeses = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        let cacheColaboradores = [];
+
+        // --- SISTEMA DE TOASTS ---
+        function mostrarToast(mensagem, tipo = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            toast.innerHTML = `<span>${mensagem}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // --- MÁSCARAS DE ENTRADA (INPUTS) ---
+        function aplicarMascaraCNPJ(v) {
+            v = v.replace(/\D/g, "");
+            v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+            v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+            v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+            v = v.replace(/(\d{4})(\d)/, "$1-$2");
+            return v;
+        }
+
+        function aplicarMascaraCPF(v) {
+            v = v.replace(/\D/g, "");
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            return v;
+        }
+
+        function aplicarMascaraIP(v) {
+            v = v.replace(/[^\d.]/g, "");
+            return v;
+        }
+
+        document.getElementById('cnpj').addEventListener('input', (e) => {
+            e.target.value = aplicarMascaraCNPJ(e.target.value);
+        });
+        document.getElementById('cpf').addEventListener('input', (e) => {
+            e.target.value = aplicarMascaraCPF(e.target.value);
+        });
+        document.getElementById('associatedIp').addEventListener('input', (e) => {
+            e.target.value = aplicarMascaraIP(e.target.value);
+        });
+
+        // --- PERSISTÊNCIA DE SESSÃO COM LOCALSTORAGE ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const operadorSalvo = localStorage.getItem('guardia_operador');
+            if (operadorSalvo) {
+                ativarSessao(operadorSalvo);
+            }
+        });
+
+        document.getElementById('authForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+
+            if (!user || !pass) {
+                document.getElementById('loginMsg').textContent = 'Preencha o usuário e a senha.';
+                return;
+            }
+
+            localStorage.setItem('guardia_operador', user);
+            ativarSessao(user);
+            mostrarToast(`Bem-vindo de volta, ${user}!`, 'success');
+        });
+
+        function ativarSessao(user) {
+            document.getElementById('loggedUserName').textContent = `Operador: ${user}`;
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+
+            carregarAlvos();
+            carregarColaboradores();
+        }
+
+        function logout() {
+            if (confirm('Deseja encerrar a sessão do operador?')) {
+                localStorage.removeItem('guardia_operador');
+                document.getElementById('appContainer').style.display = 'none';
+                document.getElementById('loginOverlay').style.display = 'flex';
+                document.getElementById('loginPass').value = '';
+                mostrarToast('Sessão encerrada com segurança.', 'info');
+            }
+        }
+
+        function mudarSubpagina(nomeSubpagina, btnElement) {
+            document.querySelectorAll('.subpage').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(`subpage-${nomeSubpagina}`).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        async function carregarAlvos() {
+            const tableBody = document.getElementById('targetsTable');
+            try {
+                const response = await fetch('/api/v1/targets');
+                if (!response.ok) throw new Error();
+                const targets = await response.json();
+                
+                document.getElementById('kpiTargets').textContent = targets.length;
+
+                if (targets.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alvo cadastrado.</td></tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = targets.map(t => `
+                    <tr>
+                        <td>#${t.id}</td>
+                        <td style="word-break: break-all;">${t.targetUrl}</td>
+                        <td class="${(t.lastStatus || '').includes('Online') ? 'status-online' : 'status-offline'}">${t.lastStatus || 'Pendente'}</td>
+                        <td>${t.lastCheckedAt || 'Nunca'}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--accent-red);">Erro ao carregar alvos.</td></tr>`;
+            }
+        }
+
+        async function carregarColaboradores() {
+            const tableBody = document.getElementById('colaboradoresTable');
+
+            try {
+                const response = await fetch('/api/v1/admin/colaboradores', {
+                    headers: { 'X-Admin-Master-Key': MASTER_KEY_SECRETA }
+                });
+
+                if (!response.ok) throw new Error('Erro ao autenticar com o backend.');
+
+                cacheColaboradores = await response.json();
+                renderizarTabelaColaboradores(cacheColaboradores);
+
+                document.getElementById('kpiUsers').textContent = cacheColaboradores.length;
+                const uniqueClients = new Set(cacheColaboradores.map(c => c.companyName)).size;
+                document.getElementById('kpiClients').textContent = uniqueClients;
+
+            } catch (err) {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--accent-red);">${err.message}</td></tr>`;
+            }
+        }
+
+        function renderizarTabelaColaboradores(data) {
+            const tableBody = document.getElementById('colaboradoresTable');
+
+            if (data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum cadastro encontrado.</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = data.map(item => {
+                const diaNasc = item.birthDay ? String(item.birthDay).padStart(2, '0') : '--';
+                const mesNasc = item.birthMonth ? nomesMeses[item.birthMonth] || '--' : '--';
+                const anoNasc = item.birthYear || '----';
+
+                return `
+                    <tr>
+                        <td>
+                            <strong>${item.companyName}</strong><br>
+                            <span style="color: var(--text-muted); font-size: 10px;">CNPJ: ${item.cnpj}</span>
+                        </td>
+                        <td>
+                            <strong>${item.fullName}</strong><br>
+                            <span style="color: var(--text-muted); font-size: 10px;">@${item.username} | Nasc: ${diaNasc}/${mesNasc}/${anoNasc}</span>
+                        </td>
+                        <td>
+                            <span class="badge-role">${item.role}</span>
+                        </td>
+                        <td>
+                            <button class="btn-danger" onclick="excluirColaborador(${item.id})">Revogar</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filtrarTabela() {
+            const termo = document.getElementById('searchFilter').value.toLowerCase();
+            const filtrados = cacheColaboradores.filter(c => 
+                (c.companyName && c.companyName.toLowerCase().includes(termo)) ||
+                (c.fullName && c.fullName.toLowerCase().includes(termo)) ||
+                (c.username && c.username.toLowerCase().includes(termo))
+            );
+            renderizarTabelaColaboradores(filtrados);
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgEl = document.getElementById('registerMsg');
+
+            const payload = {
+                companyName: document.getElementById('companyName').value,
+                cnpj: document.getElementById('cnpj').value,
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value,
+                role: document.getElementById('role').value,
+                cpf: document.getElementById('cpf').value,
+                birthDay: parseInt(document.getElementById('birthDay').value),
+                birthMonth: parseInt(document.getElementById('birthMonth').value),
+                birthYear: parseInt(document.getElementById('birthYear').value),
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                associatedIp: document.getElementById('associatedIp').value || null
+            };
+
+            msgEl.style.color = '#f3f4f6';
+            msgEl.textContent = 'Gravando ficha cadastral...';
+
+            try {
+                const response = await fetch('/api/v1/admin/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Master-Key': MASTER_KEY_SECRETA
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    msgEl.style.color = 'var(--accent-green)';
+                    msgEl.textContent = result.mensagem || 'Cadastro realizado com sucesso!';
+                    mostrarToast('Ficha cadastral registrada com sucesso!', 'success');
+                    document.getElementById('registerForm').reset();
+                    carregarColaboradores();
+                } else {
+                    msgEl.style.color = 'var(--accent-red)';
+                    msgEl.textContent = result.erro || 'Erro ao cadastrar.';
+                    mostrarToast(result.erro || 'Erro ao realizar cadastro.', 'error');
+                }
+            } catch (err) {
+                msgEl.style.color = 'var(--accent-red)';
+                msgEl.textContent = 'Erro de conexão com o backend.';
+                mostrarToast('Erro de conexão com o backend.', 'error');
+            }
+        });
+
+        async function excluirColaborador(id) {
+            if (!confirm('Deseja realmente revogar esta credencial?')) return;
+
+            try {
+                const response = await fetch(`/api/v1/admin/colaboradores/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'X-Admin-Master-Key': MASTER_KEY_SECRETA }
+                });
+
+                if (response.ok) {
+                    mostrarToast('Acesso revogado com sucesso.', 'info');
+                    carregarColaboradores();
+                } else {
+                    mostrarToast('Erro ao revogar acesso.', 'error');
+                }
+            } catch (err) {
+                mostrarToast('Erro de conexão.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

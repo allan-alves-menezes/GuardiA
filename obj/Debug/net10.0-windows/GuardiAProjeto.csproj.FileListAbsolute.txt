@@ -1,0 +1,13 @@
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\EmbeddedAttribute.cs
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\ValidatableTypeAttribute.cs
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\GuardiAProjeto.csproj.AssemblyReference.cache
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\Views\LoginView.baml
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\Views\MonitoramentoView.baml
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\MainWindow.g.cs
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\Views\CadastroEmpresaWindow.g.cs
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\Views\LoginView.g.cs
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\Views\MonitoramentoView.g.cs
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\GuardiAProjeto_Content.g.cs
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\GeneratedInternalTypeHelper.g.cs
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\GuardiAProjeto_MarkupCompile.cache
+C:\Users\Allan\Documents\GuardiAProjeto\obj\Debug\net10.0-windows\GuardiAProjeto_MarkupCompile.lref

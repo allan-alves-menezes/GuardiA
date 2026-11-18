@@ -1,0 +1,130 @@
+[2026-09-22 13:17:15.076 -03:00 INF] Iniciando o serviço GuardIA API...
+[2026-09-22 13:17:15.891 -03:00 INF] Serviço de monitoramento autônomo iniciado.
+[2026-09-22 13:17:15.908 -03:00 WRN] The WebRootPath was not found: C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0\wwwroot. Static files may be unavailable.
+[2026-09-22 13:17:16.079 -03:00 INF] Now listening on: http://[::]:5005
+[2026-09-22 13:17:16.106 -03:00 INF] Application started. Press Ctrl+C to shut down.
+[2026-09-22 13:17:16.111 -03:00 INF] Hosting environment: Production
+[2026-09-22 13:17:16.119 -03:00 INF] Content root path: C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0
+[2026-09-22 13:17:44.864 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets - application/json 81
+[2026-09-22 13:17:44.953 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:17:44.984 -03:00 INF] Setting HTTP status code 400.
+[2026-09-22 13:17:44.994 -03:00 INF] Writing value of type '<>f__AnonymousType3`1' as Json.
+[2026-09-22 13:17:45.003 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:17:45.009 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets - 400 null application/json; charset=utf-8 147.3227ms
+[2026-09-22 13:18:25.846 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets - application/json 81
+[2026-09-22 13:18:25.853 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:18:25.868 -03:00 INF] Setting HTTP status code 400.
+[2026-09-22 13:18:25.871 -03:00 INF] Writing value of type '<>f__AnonymousType3`1' as Json.
+[2026-09-22 13:18:25.874 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:18:25.878 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets - 400 null application/json; charset=utf-8 32.4218ms
+[2026-09-22 13:18:57.371 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets - application/json 112
+[2026-09-22 13:18:57.380 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:18:57.384 -03:00 INF] Setting HTTP status code 400.
+[2026-09-22 13:18:57.385 -03:00 INF] Writing value of type '<>f__AnonymousType3`1' as Json.
+[2026-09-22 13:18:57.387 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:18:57.388 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets - 400 null application/json; charset=utf-8 17.1066ms
+[2026-09-22 13:19:16.156 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets - application/json 112
+[2026-09-22 13:19:16.159 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:19:16.162 -03:00 INF] Setting HTTP status code 400.
+[2026-09-22 13:19:16.163 -03:00 INF] Writing value of type '<>f__AnonymousType3`1' as Json.
+[2026-09-22 13:19:16.165 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:19:16.166 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets - 400 null application/json; charset=utf-8 9.6399ms
+[2026-09-22 13:19:45.091 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets - application/json 112
+[2026-09-22 13:19:45.094 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:19:45.096 -03:00 INF] Setting HTTP status code 400.
+[2026-09-22 13:19:45.097 -03:00 INF] Writing value of type '<>f__AnonymousType3`1' as Json.
+[2026-09-22 13:19:45.100 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:19:45.101 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets - 400 null application/json; charset=utf-8 10.2685ms
+[2026-09-22 13:20:11.954 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets - application/json 112
+[2026-09-22 13:20:11.958 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:20:11.960 -03:00 INF] Setting HTTP status code 400.
+[2026-09-22 13:20:11.962 -03:00 INF] Writing value of type '<>f__AnonymousType3`1' as Json.
+[2026-09-22 13:20:11.963 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:20:11.967 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets - 400 null application/json; charset=utf-8 13.1009ms
+[2026-09-22 13:20:50.348 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets - application/json 112
+[2026-09-22 13:20:50.352 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:20:50.354 -03:00 INF] Setting HTTP status code 400.
+[2026-09-22 13:20:50.355 -03:00 INF] Writing value of type '<>f__AnonymousType3`1' as Json.
+[2026-09-22 13:20:50.357 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets'
+[2026-09-22 13:20:50.358 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets - 400 null application/json; charset=utf-8 9.4125ms
+[2026-09-22 13:24:25.349 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - application/json 31
+[2026-09-22 13:24:25.354 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-09-22 13:24:46.473 -03:00 ERR] Erro ao analisar URL http://192.168.1.100
+System.Net.Http.HttpRequestException: Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu. (192.168.1.100:80)
+ ---> System.Net.Sockets.SocketException (10060): Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Program.<>c.<<<Main>$>b__0_4>d.MoveNext() in C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\Program.cs:line 138
+[2026-09-22 13:24:46.517 -03:00 INF] Setting HTTP status code 500.
+[2026-09-22 13:24:46.537 -03:00 INF] Writing value of type 'ProblemDetails' as Json.
+[2026-09-22 13:24:46.546 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-09-22 13:24:46.548 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - 499 null application/problem+json 21198.2775ms
+[2026-09-22 13:24:52.542 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - application/json 31
+[2026-09-22 13:24:52.570 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-09-22 13:25:13.621 -03:00 ERR] Erro ao analisar URL http://192.168.1.100
+System.Net.Http.HttpRequestException: Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu. (192.168.1.100:80)
+ ---> System.Net.Sockets.SocketException (10060): Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Program.<>c.<<<Main>$>b__0_4>d.MoveNext() in C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\Program.cs:line 138
+[2026-09-22 13:25:13.641 -03:00 INF] Setting HTTP status code 500.
+[2026-09-22 13:25:13.643 -03:00 INF] Writing value of type 'ProblemDetails' as Json.
+[2026-09-22 13:25:13.644 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-09-22 13:25:13.646 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - 499 null application/problem+json 21103.1426ms
+[2026-09-22 13:26:03.007 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - application/json 31
+[2026-09-22 13:26:03.033 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-09-22 13:26:24.096 -03:00 ERR] Erro ao analisar URL http://192.168.1.100
+System.Net.Http.HttpRequestException: Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu. (192.168.1.100:80)
+ ---> System.Net.Sockets.SocketException (10060): Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Program.<>c.<<<Main>$>b__0_4>d.MoveNext() in C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\Program.cs:line 138
+[2026-09-22 13:26:24.119 -03:00 INF] Setting HTTP status code 500.
+[2026-09-22 13:26:24.120 -03:00 INF] Writing value of type 'ProblemDetails' as Json.
+[2026-09-22 13:26:24.122 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-09-22 13:26:24.124 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - 500 null application/problem+json 21116.8283ms

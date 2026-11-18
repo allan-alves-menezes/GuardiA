@@ -1,0 +1,104 @@
+﻿@inherits LayoutComponentBase
+
+<div class="guardia-wrapper d-flex min-vh-100 text-light">
+    <!-- Barra Lateral (Sidebar) -->
+    
+<span class="fs-4 fw-bold tracking-wide text-white" translate="no">Guardi<span class="text-info">A</span></span>
+
+    <aside class="guardia-sidebar d-flex flex-column p-3">
+        <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+            <i class="bi bi-shield-shaded fs-3 text-info me-2"></i>
+            <span class="fs-4 fw-bold tracking-wide text-white">Guardi<span class="text-info">A</span></span>
+        </div>
+
+        <ul class="nav nav-pills flex-column mb-auto gap-2">
+            <li class="nav-item">
+                <a href="/targets" class="nav-link guardia-nav-link active">
+                    <i class="bi bi-crosshair me-2"></i> Alvos & Varredura
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/alertas" class="nav-link guardia-nav-link">
+                    <i class="bi bi-exclamation-triangle me-2"></i> Alertas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/vulnerabilidades" class="nav-link guardia-nav-link">
+                    <i class="bi bi-bug me-2"></i> Vulnerabilidades
+                </a>
+            </li>
+        </ul>
+
+        <div class="mt-auto pt-3 border-top border-secondary border-opacity-25 small text-secondary">
+            <div class="d-flex align-items-center">
+                <span class="status-dot bg-success me-2"></span>
+                <span>API Porta 5005: Online</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Área Principal -->
+    <div class="flex-grow-1 d-flex flex-column guardia-main">
+        <!-- Barra Superior -->
+        <header class="guardia-topbar px-4 py-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <h5 class="mb-0 fw-semibold text-white">GuardiA Admin - Painel de Monitoramento</h5>
+                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1">
+                    <i class="bi bi-check-circle-fill me-1"></i> PROTEGIDO
+                </span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="score-box px-3 py-1 rounded-3">
+                    <span class="text-secondary small me-1">Score:</span>
+                    <span class="fw-bold text-info fs-5">94</span><span class="text-secondary small">/100</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Conteúdo da Página -->
+        <main class="p-4 flex-grow-1">
+            @Body
+        </main>
+    </div>
+</div>
+
+<style>
+    .guardia-wrapper {
+        background-color: #0b1120;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    .guardia-sidebar {
+        width: 240px;
+        background-color: #0f172a;
+        border-right: 1px solid rgba(56, 189, 248, 0.15);
+    }
+    .guardia-nav-link {
+        color: #94a3b8;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .guardia-nav-link:hover {
+        color: #f8fafc;
+        background-color: rgba(56, 189, 248, 0.1);
+    }
+    .guardia-nav-link.active {
+        background-color: rgba(56, 189, 248, 0.15) !important;
+        color: #38bdf8 !important;
+        border-left: 3px solid #38bdf8;
+    }
+    .guardia-topbar {
+        background-color: #0f172a;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+    }
+    .score-box {
+        background-color: #1e293b;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 8px #22c55e;
+    }
+</style>

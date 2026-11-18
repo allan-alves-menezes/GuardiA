@@ -1,0 +1,157 @@
+[2026-11-17 19:27:52.714 -03:00 INF] Iniciando o serviço GuardIA API...
+[2026-11-17 19:27:53.693 -03:00 INF] Serviço de monitoramento autônomo iniciado.
+[2026-11-17 19:27:53.711 -03:00 WRN] The WebRootPath was not found: C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0\wwwroot. Static files may be unavailable.
+[2026-11-17 19:27:53.873 -03:00 INF] Now listening on: http://[::]:5005
+[2026-11-17 19:27:53.876 -03:00 INF] Application started. Press Ctrl+C to shut down.
+[2026-11-17 19:27:53.877 -03:00 INF] Hosting environment: Production
+[2026-11-17 19:27:53.878 -03:00 INF] Content root path: C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0
+[2026-11-17 19:28:19.585 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets/1/scan - application/x-www-form-urlencoded 0
+[2026-11-17 19:28:19.686 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets/{id}/scan'
+[2026-11-17 19:28:19.726 -03:00 INF] Start processing HTTP request GET http://192.168.1.100/
+[2026-11-17 19:28:19.728 -03:00 INF] Sending HTTP request GET http://192.168.1.100/
+[2026-11-17 19:28:40.872 -03:00 INF] HTTP request failed after 21139.3132ms
+System.Net.Http.HttpRequestException: Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu. (192.168.1.100:80)
+ ---> System.Net.Sockets.SocketException (10060): Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|118_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+[2026-11-17 19:28:40.884 -03:00 INF] HTTP request failed after 21160.6878ms
+System.Net.Http.HttpRequestException: Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu. (192.168.1.100:80)
+ ---> System.Net.Sockets.SocketException (10060): Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|118_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+[2026-11-17 19:28:40.903 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets/{id}/scan'
+[2026-11-17 19:28:40.914 -03:00 ERR] Connection id "0HNQ4V8AGIRAD", Request id "0HNQ4V8AGIRAD:00000001": An unhandled exception was thrown by the application.
+Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 1: 'no such column: HttpStatus'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteCommand.PrepareAndEnumerateStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteCommand.GetStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteNonQuery()
+   at Program.<>c__DisplayClass0_0.<<<Main>$>b__5>d.MoveNext() in C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\Program.cs:line 195
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Program.<>c__DisplayClass0_0.<<<Main>$>b__3>d.MoveNext() in C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\Program.cs:line 109
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+[2026-11-17 19:28:40.953 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets/1/scan - 500 0 null 21369.6356ms
+[2026-11-17 19:31:02.139 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets/1/scan - application/x-www-form-urlencoded 0
+[2026-11-17 19:31:02.146 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets/{id}/scan'
+[2026-11-17 19:31:02.152 -03:00 INF] Start processing HTTP request GET http://192.168.1.100/
+[2026-11-17 19:31:02.154 -03:00 INF] Sending HTTP request GET http://192.168.1.100/
+[2026-11-17 19:31:23.199 -03:00 INF] HTTP request failed after 21042.928ms
+System.Net.Http.HttpRequestException: Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu. (192.168.1.100:80)
+ ---> System.Net.Sockets.SocketException (10060): Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|118_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+[2026-11-17 19:31:23.204 -03:00 INF] HTTP request failed after 21051.936ms
+System.Net.Http.HttpRequestException: Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu. (192.168.1.100:80)
+ ---> System.Net.Sockets.SocketException (10060): Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|118_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+[2026-11-17 19:31:23.214 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets/{id}/scan'
+[2026-11-17 19:31:23.216 -03:00 ERR] Connection id "0HNQ4V8AGIRAE", Request id "0HNQ4V8AGIRAE:00000001": An unhandled exception was thrown by the application.
+Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 1: 'no such column: HttpStatus'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteCommand.PrepareAndEnumerateStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteCommand.GetStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteNonQuery()
+   at Program.<>c__DisplayClass0_0.<<<Main>$>b__5>d.MoveNext() in C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\Program.cs:line 195
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Program.<>c__DisplayClass0_0.<<<Main>$>b__3>d.MoveNext() in C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\Program.cs:line 109
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+[2026-11-17 19:31:23.227 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets/1/scan - 500 0 null 21087.6929ms
+[2026-11-17 19:32:00.874 -03:00 INF] Application is shutting down...
+[2026-11-17 19:42:27.271 -03:00 INF] Iniciando o serviço GuardIA API...
+[2026-11-17 19:42:27.673 -03:00 INF] Serviço de monitoramento autônomo iniciado.
+[2026-11-17 19:42:27.685 -03:00 WRN] The WebRootPath was not found: C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0\wwwroot. Static files may be unavailable.
+[2026-11-17 19:42:27.815 -03:00 INF] Now listening on: http://[::]:5005
+[2026-11-17 19:42:27.826 -03:00 INF] Application started. Press Ctrl+C to shut down.
+[2026-11-17 19:42:27.833 -03:00 INF] Hosting environment: Production
+[2026-11-17 19:42:27.838 -03:00 INF] Content root path: C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0
+[2026-11-17 19:42:46.678 -03:00 INF] Application is shutting down...
+[2026-11-17 19:42:52.616 -03:00 INF] Iniciando o serviço GuardIA API...
+[2026-11-17 19:42:53.064 -03:00 INF] Serviço de monitoramento autônomo iniciado.
+[2026-11-17 19:42:53.078 -03:00 WRN] The WebRootPath was not found: C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0\wwwroot. Static files may be unavailable.
+[2026-11-17 19:42:53.212 -03:00 INF] Now listening on: http://[::]:5005
+[2026-11-17 19:42:53.215 -03:00 INF] Application started. Press Ctrl+C to shut down.
+[2026-11-17 19:42:53.217 -03:00 INF] Hosting environment: Production
+[2026-11-17 19:42:53.222 -03:00 INF] Content root path: C:\Users\user\Desktop\Backup\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0

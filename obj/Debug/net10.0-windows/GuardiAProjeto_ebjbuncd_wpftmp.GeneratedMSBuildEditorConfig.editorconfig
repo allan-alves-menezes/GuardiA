@@ -1,0 +1,77 @@
+is_global = true
+build_property.TargetFramework = net10.0-windows
+build_property.TargetFramework = net10.0-windows
+build_property.TargetPlatformMinVersion = 7.0
+build_property.TargetPlatformMinVersion = 7.0
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v10.0
+build_property.EntryPointFilePath = 
+build_property.RootNamespace = GuardiAProjeto
+build_property.RootNamespace = GuardiAProjeto
+build_property.ProjectDir = C:\Users\Allan\Documents\GuardiAProjeto\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.RazorLangVersion = 10.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\Allan\Documents\GuardiAProjeto
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 10.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/App.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXEFwcC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/Pages/Counter.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXFBhZ2VzXENvdW50ZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/Pages/Error.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXFBhZ2VzXEVycm9yLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXFBhZ2VzXEhvbWUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/Pages/NotFound.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXFBhZ2VzXE5vdEZvdW5kLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/Pages/Weather.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXFBhZ2VzXFdlYXRoZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/Routes.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXFJvdXRlcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXF9JbXBvcnRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXExheW91dFxNYWluTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-6j82b0u7bp
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXExheW91dFxOYXZNZW51LnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-cn65zd2vrr
+
+[C:/Users/Allan/Documents/GuardiAProjeto/GuardiA.Admin/Components/Layout/ReconnectModal.razor]
+build_metadata.AdditionalFiles.TargetPath = R3VhcmRpQS5BZG1pblxDb21wb25lbnRzXExheW91dFxSZWNvbm5lY3RNb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-f9fg0tptwc

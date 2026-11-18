@@ -1,0 +1,70 @@
+[2026-10-02 11:12:02.865 -03:00 INF] Iniciando o serviço GuardIA API...
+[2026-10-02 11:12:03.616 -03:00 INF] Serviço de monitoramento autônomo iniciado.
+[2026-10-02 11:12:03.632 -03:00 WRN] The WebRootPath was not found: C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0\wwwroot. Static files may be unavailable.
+[2026-10-02 11:12:03.778 -03:00 INF] Now listening on: http://[::]:5005
+[2026-10-02 11:12:03.782 -03:00 INF] Application started. Press Ctrl+C to shut down.
+[2026-10-02 11:12:03.782 -03:00 INF] Hosting environment: Production
+[2026-10-02 11:12:03.783 -03:00 INF] Content root path: C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\bin\Debug\net10.0
+[2026-10-02 11:12:16.887 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - application/json 31
+[2026-10-02 11:12:16.951 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-10-02 11:12:38.095 -03:00 ERR] Erro ao analisar URL http://192.168.1.100
+System.Net.Http.HttpRequestException: Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu. (192.168.1.100:80)
+ ---> System.Net.Sockets.SocketException (10060): Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Program.<>c.<<<Main>$>b__0_4>d.MoveNext() in C:\Users\Allan\Documents\GuardiAProjeto\GuardiA.API\Program.cs:line 138
+[2026-10-02 11:12:38.138 -03:00 INF] Setting HTTP status code 500.
+[2026-10-02 11:12:38.169 -03:00 INF] Writing value of type 'ProblemDetails' as Json.
+[2026-10-02 11:12:38.187 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-10-02 11:12:38.194 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - 500 null application/problem+json 21309.6661ms
+[2026-10-02 11:14:58.136 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - application/json 32
+[2026-10-02 11:14:58.156 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-10-02 11:14:58.178 -03:00 INF] Request starting HTTP/1.1 HEAD http://localhost:5005/ - null null
+[2026-10-02 11:14:58.188 -03:00 INF] Request finished HTTP/1.1 HEAD http://localhost:5005/ - 404 null null 9.4037ms
+[2026-10-02 11:14:58.194 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: HEAD http://localhost:5005/, Response status code: 404
+[2026-10-02 11:14:58.199 -03:00 INF] Setting HTTP status code 200.
+[2026-10-02 11:14:58.210 -03:00 INF] Writing value of type '<>f__AnonymousType4`5' as Json.
+[2026-10-02 11:14:58.215 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-10-02 11:14:58.218 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - 200 null application/json; charset=utf-8 82.1755ms
+[2026-10-02 11:15:03.695 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - application/json 32
+[2026-10-02 11:15:03.698 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-10-02 11:15:03.701 -03:00 INF] Request starting HTTP/1.1 HEAD http://localhost:5005/ - null null
+[2026-10-02 11:15:03.708 -03:00 INF] Request finished HTTP/1.1 HEAD http://localhost:5005/ - 404 null null 6.2014ms
+[2026-10-02 11:15:03.708 -03:00 INF] Setting HTTP status code 200.
+[2026-10-02 11:15:03.711 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: HEAD http://localhost:5005/, Response status code: 404
+[2026-10-02 11:15:03.712 -03:00 INF] Writing value of type '<>f__AnonymousType4`5' as Json.
+[2026-10-02 11:15:03.716 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/scanner/url'
+[2026-10-02 11:15:03.717 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/scanner/url - 200 null application/json; charset=utf-8 22.0898ms
+[2026-10-02 11:15:31.761 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets - application/json 112
+[2026-10-02 11:15:31.764 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets'
+[2026-10-02 11:15:31.768 -03:00 INF] Setting HTTP status code 400.
+[2026-10-02 11:15:31.772 -03:00 INF] Writing value of type '<>f__AnonymousType3`1' as Json.
+[2026-10-02 11:15:31.775 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets'
+[2026-10-02 11:15:31.854 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets - 400 null application/json; charset=utf-8 92.8236ms
+[2026-10-02 11:17:40.091 -03:00 INF] Request starting HTTP/1.1 POST http://localhost:5005/api/v1/targets - application/json 66
+[2026-10-02 11:17:40.101 -03:00 INF] Executing endpoint 'HTTP: POST /api/v1/targets'
+[2026-10-02 11:17:40.127 -03:00 INF] Setting HTTP status code 200.
+[2026-10-02 11:17:40.132 -03:00 INF] Writing value of type '<>f__AnonymousType9`1' as Json.
+[2026-10-02 11:17:40.135 -03:00 INF] Executed endpoint 'HTTP: POST /api/v1/targets'
+[2026-10-02 11:17:40.138 -03:00 INF] Request finished HTTP/1.1 POST http://localhost:5005/api/v1/targets - 200 null application/json; charset=utf-8 46.0745ms
+[2026-10-02 11:20:47.769 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-10-02 11:20:47.794 -03:00 INF] Executing endpoint 'HTTP: GET /api/v1/targets'
+[2026-10-02 11:20:47.804 -03:00 INF] Setting HTTP status code 200.
+[2026-10-02 11:20:47.806 -03:00 INF] Writing value of type 'List`1' as Json.
+[2026-10-02 11:20:47.810 -03:00 INF] Executed endpoint 'HTTP: GET /api/v1/targets'
+[2026-10-02 11:20:47.815 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 200 null application/json; charset=utf-8 46.2527ms

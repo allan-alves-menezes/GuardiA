@@ -1,0 +1,5 @@
+X-Admin-Master-Key com o valor guardia-master-secret-2026 no cabeçalho da requisição.
+
+
+
+

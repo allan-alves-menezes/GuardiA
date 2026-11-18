@@ -1,0 +1,36 @@
+[2026-11-18 10:04:03.705 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:04:03.794 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 89.0768ms
+[2026-11-18 10:04:03.802 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:04:23.808 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:04:23.817 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 10.0008ms
+[2026-11-18 10:04:23.830 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:04:27.380 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:04:27.393 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 13.3718ms
+[2026-11-18 10:04:27.399 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:05:14.560 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:05:14.600 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 39.7652ms
+[2026-11-18 10:05:14.623 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:15:02.165 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:15:02.169 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 3.6882ms
+[2026-11-18 10:15:02.172 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:15:06.732 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:15:06.736 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 3.7672ms
+[2026-11-18 10:15:06.752 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:15:08.214 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:15:08.217 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 2.5784ms
+[2026-11-18 10:15:08.233 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:15:09.087 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:15:09.093 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 6.405ms
+[2026-11-18 10:15:09.104 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:15:11.130 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:15:11.157 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 26.7462ms
+[2026-11-18 10:15:11.197 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:15:12.332 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:15:12.345 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 12.9289ms
+[2026-11-18 10:15:12.355 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:15:13.591 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:15:13.598 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 7.187ms
+[2026-11-18 10:15:13.621 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
+[2026-11-18 10:15:17.762 -03:00 INF] Request starting HTTP/1.1 GET http://localhost:5005/api/v1/targets - null null
+[2026-11-18 10:15:17.772 -03:00 INF] Request finished HTTP/1.1 GET http://localhost:5005/api/v1/targets - 404 0 null 10.0455ms
+[2026-11-18 10:15:17.805 -03:00 INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5005/api/v1/targets, Response status code: 404
