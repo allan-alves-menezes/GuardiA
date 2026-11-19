@@ -175,6 +175,12 @@ try
     .WithName("AnalisarUrl")
     .WithTags("Varredura de Links");
 
+    app.MapPost("/api/targets/{id:int}/scan", async (int id, /* seu DbContext ou serviço */ CancellationToken ct) =>
+{
+    // Localize o alvo pelo id, execute a verificação e persista o resultado
+    return Results.Ok(new { targetId = id, scannedAt = DateTimeOffset.UtcNow, status = "Completed" });
+});
+
     app.MapPost("/api/v1/targets/{id}/scan", async (int id, HttpClient httpClient) =>
     {
         using var connection = new SqliteConnection($"Data Source={dbPath}");

@@ -1,148 +1,120 @@
 @page "/alertas"
-@inject TargetService TargetService
-@inject HttpClient Http
+@rendermode InteractiveServer
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold text-white mb-1">
-                <i class="bi bi-exclamation-triangle text-warning me-2"></i>Central de Alertas e Incidentes
-            </h4>
-            <p class="text-secondary small mb-0">Monitoramento de anomalias HTTP e análise forense de cabeçalhos de e-mail.</p>
-        </div>
-        <button class="btn btn-sm btn-outline-info" @onclick="CarregarAlertas">
-            <i class="bi bi-arrow-clockwise me-1"></i> Atualizar Alertas
-        </button>
+<PageTitle>Alertas - GuardiA</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h4 class="mb-1 text-white fw-semibold">Central de Alertas</h4>
+        <p class="text-secondary small mb-0">Triagem de eventos e anomalias detectadas pelo Sentinel</p>
     </div>
 
-    <div class="row g-4">
-        <!-- Coluna 1: Alertas dos Alvos Monitorados -->
-        <div class="col-lg-6">
-            <div class="cyber-card p-4 h-100">
-                <h6 class="cyber-card-title mb-3">
-                    <i class="bi bi-broadcast text-danger me-2"></i>Alertas de Disponibilidade e Redirecionamento
-                </h6>
-
-                @if (alvosComAlerta == null)
-                {
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-info spinner-border-sm"></div>
-                    </div>
-                }
-                else if (!alvosComAlerta.Any())
-                {
-                    <div class="alert bg-success bg-opacity-10 border border-success border-opacity-25 text-success small">
-                        <i class="bi bi-shield-check me-2"></i>Nenhum alerta crítico nos alvos monitorados no momento.
-                    </div>
-                }
-                else
-                {
-                    <div class="list-group list-group-flush">
-                        @foreach (var alvo in alvosComAlerta)
-                        {
-                            <div class="list-group-item bg-transparent border-secondary border-opacity-25 px-0 py-3">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <span class="badge @(alvo.StatusCode >= 400 ? "bg-danger" : "bg-warning text-dark") me-2">
-                                            HTTP @alvo.StatusCode
-                                        </span>
-                                        <strong class="text-white">@alvo.Brand</strong>
-                                        <div class="text-info small mt-1">@alvo.Url</div>
-                                    </div>
-                                    <span class="text-secondary small">@alvo.LastCheckedAt</span>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
+    <div class="d-flex flex-wrap gap-3 align-items-end">
+        <div>
+            <label for="filtro-severidade" class="form-label small text-secondary mb-1">Severidade</label>
+            <select id="filtro-severidade"
+                    class="form-select form-select-sm bg-dark text-light border-secondary"
+                    @bind="_selectedSeverity">
+                <option value="Todas">Todas</option>
+                <option value="Crítico">Crítico</option>
+                <option value="Alto">Alto</option>
+                <option value="Médio">Médio</option>
+                <option value="Baixo">Baixo</option>
+            </select>
         </div>
 
-        <!-- Coluna 2: Analisador de Cabeçalho de E-mail (Spoofing) -->
-        <div class="col-lg-6">
-            <div class="cyber-card p-4 h-100">
-                <h6 class="cyber-card-title mb-3">
-                    <i class="bi bi-envelope-exclamation text-info me-2"></i>Detector de Email Spoofing (SPF / DKIM / DMARC)
-                </h6>
-                <div class="mb-3">
-                    <label class="form-label small text-secondary">Cole o cabeçalho bruto (Header) do e-mail suspeito:</label>
-                    <textarea class="form-control cyber-input small" rows="5" @bind="headerContent"
-                              placeholder="Ex: From: suporte@banco.com&#10;Return-Path: atacante@malicioso.xyz&#10;received-spf: fail"></textarea>
-                </div>
-                <button class="btn btn-info btn-sm fw-bold text-dark mb-3" @onclick="AnalisarCabecalho" disabled="@analisando">
-                    <i class="bi bi-search me-1"></i> @(analisando ? "Analisando..." : "Analisar Cabeçalho")
-                </button>
-
-                @if (resultadoEmail != null)
-                {
-                    <div class="p-3 rounded-3 bg-dark border border-secondary border-opacity-50 small">
-                        <div class="mb-2 fw-bold @(resultadoEmail.RiscoSpoofing ? "text-danger" : "text-success")">
-                            @resultadoEmail.DiagnosticoFinal
-                        </div>
-                        <div class="text-secondary"><strong>Remetente:</strong> <span class="text-light">@resultadoEmail.RemetenteVisivel</span></div>
-                        <div class="text-secondary"><strong>Return-Path:</strong> <span class="text-light">@resultadoEmail.CaminhoRetorno</span></div>
-                        <div class="mt-2 d-flex gap-2">
-                            <span class="badge bg-secondary">SPF: @resultadoEmail.StatusSPF</span>
-                            <span class="badge bg-secondary">DKIM: @resultadoEmail.StatusDKIM</span>
-                            <span class="badge bg-secondary">DMARC: @resultadoEmail.StatusDMARC</span>
-                        </div>
-                    </div>
-                }
-            </div>
+        <div>
+            <label for="filtro-status" class="form-label small text-secondary mb-1">Status</label>
+            <select id="filtro-status"
+                    class="form-select form-select-sm bg-dark text-light border-secondary"
+                    @bind="_selectedStatus">
+                <option value="Todos">Todos</option>
+                <option value="Abertos">Abertos</option>
+                <option value="Resolvidos">Resolvidos</option>
+            </select>
         </div>
     </div>
 </div>
 
+@if (!FilteredAlerts.Any())
+{
+    <div class="alert alert-secondary bg-dark text-secondary border-secondary">
+        Nenhum alerta encontrado para os filtros selecionados.
+    </div>
+}
+else
+{
+    <div class="list-group gap-2">
+        @foreach (var alerta in FilteredAlerts)
+        {
+            <div class="list-group-item bg-dark text-light border-secondary rounded-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <span class="badge @GetSeverityBadgeClass(alerta.Severity) me-2">@alerta.Severity</span>
+                    <strong>@alerta.Title</strong>
+                    <div class="small text-secondary mt-1">@alerta.Description</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge @(alerta.Resolved ? "bg-success" : "bg-danger")">
+                        @(alerta.Resolved ? "Resolvido" : "Aberto")
+                    </span>
+                    @if (!alerta.Resolved)
+                    {
+                        <button type="button"
+                                class="btn btn-sm btn-outline-success"
+                                @onclick="() => MarkAsResolved(alerta.Id)"
+                                aria-label="Marcar alerta @alerta.Title como resolvido">
+                            Resolver
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
 @code {
-    private List<TargetDto>? alvosComAlerta;
-    private string headerContent = string.Empty;
-    private bool analisando = false;
-    private EmailDiagnosticoDto? resultadoEmail;
+    private List<AlertItem>? _alerts;
+    private string _selectedSeverity = "Todas";
+    private string _selectedStatus = "Todos";
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await CarregarAlertas();
+        // Dados iniciais de exemplo — substitua pela chamada à sua GuardiA.API quando o endpoint estiver pronto
+        _alerts ??= new List<AlertItem>();
     }
 
-    private async Task CarregarAlertas()
+    private IEnumerable<AlertItem> FilteredAlerts
     {
-        try
+        get
         {
-            var todos = await TargetService.GetTargetsAsync();
-            alvosComAlerta = todos.Where(t => t.StatusCode >= 300).ToList();
-        }
-        catch
-        {
-            alvosComAlerta = new List<TargetDto>();
-        }
-    }
+            var safeList = _alerts ?? Enumerable.Empty<AlertItem>();
 
-    private async Task AnalisarCabecalho()
-    {
-        if (string.IsNullOrWhiteSpace(headerContent)) return;
-        analisando = true;
-        try
-        {
-            var response = await Http.PostAsJsonAsync("http://localhost:5005/api/v1/seguranca/analisar-cabecalho-de-e-mail", new { HeaderContent = headerContent });
-            if (response.IsSuccessStatusCode)
-            {
-                resultadoEmail = await response.Content.ReadFromJsonAsync<EmailDiagnosticoDto>();
-            }
-        }
-        finally
-        {
-            analisando = false;
+            return safeList.Where(a =>
+                (_selectedSeverity == "Todas" || string.Equals(a.Severity, _selectedSeverity, StringComparison.OrdinalIgnoreCase)) &&
+                (_selectedStatus == "Todos" ||
+                 (_selectedStatus == "Abertos" && !a.Resolved) ||
+                 (_selectedStatus == "Resolvidos" && a.Resolved)));
         }
     }
 
-    private class EmailDiagnosticoDto
+    private void MarkAsResolved(int id)
     {
-        public string RemetenteVisivel { get; set; } = "";
-        public string CaminhoRetorno { get; set; } = "";
-        public string StatusSPF { get; set; } = "";
-        public string StatusDKIM { get; set; } = "";
-        public string StatusDMARC { get; set; } = "";
-        public bool RiscoSpoofing { get; set; }
-        public string DiagnosticoFinal { get; set; } = "";
+        if (_alerts is null) return;
+
+        var index = _alerts.FindIndex(a => a.Id == id);
+        if (index >= 0)
+        {
+            _alerts[index] = _alerts[index] with { Resolved = true };
+        }
     }
+
+    private static string GetSeverityBadgeClass(string? severity) => severity?.ToLowerInvariant() switch
+    {
+        "crítico" or "critico" => "bg-danger",
+        "alto" => "bg-warning text-dark",
+        "médio" or "medio" => "bg-info text-dark",
+        _ => "bg-secondary"
+    };
+
+    private sealed record AlertItem(int Id, string Title, string Description, string Severity, bool Resolved);
 }

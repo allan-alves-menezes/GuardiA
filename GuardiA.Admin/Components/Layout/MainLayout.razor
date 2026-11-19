@@ -1,64 +1,82 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject GuardiA.Admin.Services.GuardiaTelemetryService Telemetry
+@inject NavigationManager Nav
 
 <div class="guardia-wrapper d-flex min-vh-100 text-light">
     <!-- Barra Lateral (Sidebar) -->
-    <aside class="guardia-sidebar d-flex flex-column p-3">
+    <aside class="guardia-sidebar d-flex flex-column p-3" aria-label="Navegação principal do GuardiA">
         <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
-            <i class="bi bi-shield-shaded fs-3 text-info me-2"></i>
+            <i class="bi bi-shield-shaded fs-3 text-info me-2" aria-hidden="true"></i>
             <span class="fs-4 fw-bold tracking-wide text-white" translate="no">Guardi<span class="text-info">A</span></span>
         </div>
 
         <ul class="nav nav-pills flex-column mb-auto gap-2">
             <li class="nav-item">
-                <a href="/" class="nav-link guardia-nav-link">
-                    <i class="bi bi-speedometer2 me-2"></i> Painel
-                </a>
+                <NavLink href="/" Match="NavLinkMatch.All" class="nav-link guardia-nav-link">
+                    <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i> Painel
+                </NavLink>
             </li>
             <li class="nav-item">
-                <a href="/targets" class="nav-link guardia-nav-link">
-                    <i class="bi bi-crosshair me-2"></i> Alvos & Varredura
-                </a>
+                <NavLink href="/targets" class="nav-link guardia-nav-link">
+                    <i class="bi bi-crosshair me-2" aria-hidden="true"></i> Alvos &amp; Varredura
+                </NavLink>
             </li>
             <li class="nav-item">
-                <a href="/alertas" class="nav-link guardia-nav-link">
-                    <i class="bi bi-exclamation-triangle me-2"></i> Alertas
-                </a>
+                <NavLink href="/alertas" class="nav-link guardia-nav-link">
+                    <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i> Alertas
+                </NavLink>
             </li>
             <li class="nav-item">
-                <a href="/vulnerabilidades" class="nav-link guardia-nav-link">
-                    <i class="bi bi-bug me-2"></i> Vulnerabilidades
-                </a>
+                <NavLink href="/vulnerabilidades" class="nav-link guardia-nav-link">
+                    <i class="bi bi-bug me-2" aria-hidden="true"></i> Vulnerabilidades
+                </NavLink>
             </li>
         </ul>
 
         <div class="mt-auto pt-3 border-top border-secondary border-opacity-25 small text-secondary">
-            <div class="d-flex align-items-center">
-                <span class="status-dot bg-success me-2"></span>
-                <span>API Porta 5005: Online</span>
+            <div class="d-flex align-items-center justify-content-between mb-1">
+                <div class="d-flex align-items-center">
+                    <span class="status-dot @StatusDotClass me-2" aria-hidden="true"></span>
+                    <span>API: @Telemetry.ApiStatusLabel</span>
+                </div>
+                <button type="button"
+                        class="btn btn-sm btn-link text-info p-0"
+                        @onclick="RefreshHealthAsync"
+                        aria-label="Verificar status da API agora"
+                        title="Verificar status da API">
+                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                </button>
             </div>
+            @if (Telemetry.LastScanAt is not null)
+            {
+                <div class="text-muted" style="font-size: 0.75rem;">
+                    Última varredura: @Telemetry.LastScanAt.Value.ToLocalTime().ToString("HH:mm:ss")
+                </div>
+            }
         </div>
     </aside>
 
     <!-- Área Principal -->
     <div class="flex-grow-1 d-flex flex-column guardia-main">
         <!-- Barra Superior -->
-        <header class="guardia-topbar px-4 py-3 d-flex justify-content-between align-items-center">
+        <header class="guardia-topbar px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="d-flex align-items-center gap-3">
                 <h5 class="mb-0 fw-semibold text-white">GuardiA Admin - Painel de Monitoramento</h5>
-                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1">
-                    <i class="bi bi-check-circle-fill me-1"></i> PROTEGIDO
+                <span class="badge @ProtectionBadgeClass px-3 py-1">
+                    <i class="bi @ProtectionBadgeIcon me-1" aria-hidden="true"></i> @ProtectionBadgeText
                 </span>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <div class="score-box px-3 py-1 rounded-3">
+                <div class="score-box px-3 py-1 rounded-3" aria-label="Pontuação de segurança">
                     <span class="text-secondary small me-1">Score:</span>
-                    <span class="fw-bold text-info fs-5">94</span><span class="text-secondary small">/100</span>
+                    <span class="fw-bold text-info fs-5">@Telemetry.SecurityScore</span><span class="text-secondary small">/100</span>
                 </div>
             </div>
         </header>
 
         <!-- Conteúdo da Página -->
-        <main class="p-4 flex-grow-1">
+        <main class="p-4 flex-grow-1" id="main-content">
             @Body
         </main>
     </div>
@@ -88,6 +106,12 @@
         color: #38bdf8 !important;
         border-left: 3px solid #38bdf8;
     }
+    .guardia-nav-link:focus-visible,
+    button:focus-visible,
+    a:focus-visible {
+        outline: 2px solid #38bdf8;
+        outline-offset: 2px;
+    }
     .guardia-topbar {
         background-color: #0f172a;
         border-bottom: 1px solid rgba(56, 189, 248, 0.15);
@@ -101,6 +125,56 @@
         height: 8px;
         border-radius: 50%;
         display: inline-block;
+    }
+    .status-online {
+        background-color: #22c55e;
         box-shadow: 0 0 8px #22c55e;
     }
+    .status-offline {
+        background-color: #ef4444;
+        box-shadow: 0 0 8px #ef4444;
+    }
 </style>
+
+@code {
+    private string StatusDotClass => Telemetry.IsApiOnline ? "status-online" : "status-offline";
+
+    private string ProtectionBadgeClass => !Telemetry.IsApiOnline
+        ? "bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-50"
+        : Telemetry.SecurityScore >= 80
+            ? "bg-success bg-opacity-25 text-success border border-success border-opacity-50"
+            : "bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50";
+
+    private string ProtectionBadgeIcon => !Telemetry.IsApiOnline
+        ? "bi-wifi-off"
+        : Telemetry.SecurityScore >= 80
+            ? "bi-check-circle-fill"
+            : "bi-exclamation-diamond-fill";
+
+    private string ProtectionBadgeText => !Telemetry.IsApiOnline
+        ? "SEM TELEMETRIA"
+        : Telemetry.SecurityScore >= 80
+            ? "PROTEGIDO"
+            : "ATENÇÃO";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Telemetry.OnStateChanged += HandleTelemetryChanged;
+        await Telemetry.CheckApiHealthAsync();
+    }
+
+    private void HandleTelemetryChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RefreshHealthAsync()
+    {
+        await Telemetry.CheckApiHealthAsync();
+    }
+
+    public void Dispose()
+    {
+        Telemetry.OnStateChanged -= HandleTelemetryChanged;
+    }
+}

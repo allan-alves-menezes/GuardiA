@@ -1,0 +1,157 @@
+@page "/targets"
+@rendermode InteractiveServer
+@using GuardiA.Admin.Models
+@using GuardiA.Admin.Services
+@inject TargetService TargetService
+
+<PageTitle>Alvos &amp; Varredura - GuardiA</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+        <h4 class="mb-1 text-white fw-semibold">Alvos &amp; Varredura</h4>
+        <p class="text-secondary small mb-0">Gerenciamento de alvos monitorados e disparo manual de varredura</p>
+    </div>
+
+    <button type="button"
+            class="btn btn-sm btn-outline-secondary"
+            disabled="@_isLoading"
+            @onclick="LoadTargetsAsync">
+        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>
+        <span>Atualizar lista</span>
+    </button>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(_feedbackMessage))
+{
+    <div class="alert @_feedbackCssClass alert-dismissible fade show mb-3" role="alert">
+        @_feedbackMessage
+        <button type="button" class="btn-close" @onclick="() => _feedbackMessage = null" aria-label="Fechar"></button>
+    </div>
+}
+
+@if (_isLoading)
+{
+    <div class="text-secondary small">Carregando alvos...</div>
+}
+else if (_targets is null || _targets.Count == 0)
+{
+    <div class="alert alert-secondary bg-dark text-secondary border-secondary">
+        Nenhum alvo encontrado.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle border-secondary">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>URL / Alvo</th>
+                    <th>Status</th>
+                    <th>SSL (dias)</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var target in _targets)
+                {
+                    var labelAlvo = string.IsNullOrWhiteSpace(target.Brand)
+                        ? target.Url
+                        : $"{target.Brand} ({target.Url})";
+
+                    <tr>
+                        <td>@target.Id</td>
+                        <td>
+                            <div class="fw-medium text-light">@target.Url</div>
+                            @if (!string.IsNullOrWhiteSpace(target.Brand))
+                            {
+                                <div class="small text-secondary">@target.Brand</div>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge @(target.Active ? "bg-success" : "bg-secondary")">
+                                @(string.IsNullOrWhiteSpace(target.LastStatus) ? (target.Active ? "Ativo" : "Inativo") : target.LastStatus)
+                            </span>
+                        </td>
+                        <td>@target.SslDays</td>
+                        <td class="text-end">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-info"
+                                    disabled="@(_scanningTargetId is not null)"
+                                    @onclick="() => TriggerScanAsync(target.Id)"
+                                    aria-label="@($"Executar varredura agora no alvo {labelAlvo}")">
+                                @if (_scanningTargetId == target.Id)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    <span>Varrendo...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-radar me-1" aria-hidden="true"></i>
+                                    <span>Varredura agora</span>
+                                }
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<TargetDto>? _targets;
+    private bool _isLoading = true;
+    private int? _scanningTargetId;
+    private string? _feedbackMessage;
+    private string _feedbackCssClass = "alert-info";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTargetsAsync();
+    }
+
+    private async Task LoadTargetsAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _targets = await TargetService.GetTargetsAsync();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task TriggerScanAsync(int targetId)
+    {
+        if (_scanningTargetId is not null)
+        {
+            return;
+        }
+
+        _scanningTargetId = targetId;
+        _feedbackMessage = null;
+
+        try
+        {
+            var ok = await TargetService.ScanTargetNowAsync(targetId);
+            if (ok)
+            {
+                _feedbackCssClass = "alert-success";
+                _feedbackMessage = $"Varredura concluída para o alvo #{targetId}.";
+                await LoadTargetsAsync();
+            }
+            else
+            {
+                _feedbackCssClass = "alert-warning";
+                _feedbackMessage = $"Não foi possível iniciar a varredura para o alvo #{targetId}.";
+            }
+        }
+        finally
+        {
+            _scanningTargetId = null;
+        }
+    }
+}

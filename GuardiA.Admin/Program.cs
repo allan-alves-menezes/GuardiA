@@ -7,14 +7,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Configuração flexível do HttpClient (Lê variável de ambiente do Render ou usa localhost como padrão)
-var apiBaseUrl = builder.Configuration["API_BASE_URL"] ?? "http://localhost:5005/";
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
+// Configuração flexível da URL base da API (Render / variáveis de ambiente ou localhost)
+var rawBaseUrl = builder.Configuration["API_BASE_URL"]
+    ?? builder.Configuration["GuardiaApi:BaseUrl"]
+    ?? "http://localhost:5005/";
 
-// Registro do Serviço de Alvos
+var normalizedBaseUrl = rawBaseUrl.EndsWith('/') ? rawBaseUrl : $"{rawBaseUrl}/";
+
+builder.Services.AddHttpClient("GuardiaApi", client =>
+{
+    client.BaseAddress = new Uri(normalizedBaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var factory = sp.GetRequiredService<IHttpClientFactory>();
+    return factory.CreateClient("GuardiaApi");
+});
+
+// Serviços da aplicação
 builder.Services.AddScoped<TargetService>();
+builder.Services.AddSingleton<GuardiaTelemetryService>();
 
-// 👉 REGISTRO DO WORKER AUTÔNOMO (Roda em segundo plano contínuo)
+// Worker autônomo em segundo plano
 builder.Services.AddHostedService<GuardiASentinelWorker>();
 
 var app = builder.Build();
