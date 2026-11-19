@@ -1,13 +1,14 @@
-﻿using Scalar.AspNetCore;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
 using GuardiA.API;
+using GuardiA.API.Data;
 using GuardiA.API.Endpoints;
 using GuardiA.API.Models;
 using GuardiA.API.Services;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Scalar.AspNetCore;
 
 Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
@@ -32,7 +33,7 @@ try
     string dbPath = Path.Combine(AppContext.BaseDirectory, "guardia_vault.db");
     ProgramHelpers.InitDatabase(dbPath);
 
-    // Garantir que a tabela e colunas de targets existam no banco SQLite de forma segura
+    // Garante que a tabela de alvos exista com todas as colunas esperadas
     using (var connection = new SqliteConnection($"Data Source={dbPath}"))
     {
         connection.Open();
@@ -43,24 +44,35 @@ try
                 Url TEXT NOT NULL,
                 TargetBrand TEXT NOT NULL,
                 HttpStatus INTEGER DEFAULT 0,
+                LastStatus TEXT,
+                IsActive INTEGER DEFAULT 1,
                 LastChecked TEXT
             );
         ";
         createTableCmd.ExecuteNonQuery();
     }
 
-    builder.Services.AddDbContext<GuardiA.API.Data.GuardiaDbContext>(options =>
+    builder.Services.AddDbContext<GuardiaDbContext>(options =>
         options.UseSqlite($"Data Source={dbPath}"));
 
     builder.Services.AddHostedService<AutonomousMonitoringService>();
 
-    builder.Host.UseWindowsService();
+    if (OperatingSystem.IsWindows())
+    {
+        builder.Host.UseWindowsService();
+    }
+
     builder.Host.UseSerilog();
 
-    builder.WebHost.ConfigureKestrel(options =>
+    // Respeita PORT do Render / ASPNETCORE_URLS do Docker, com fallback para 8080
+    string? portEnv = Environment.GetEnvironmentVariable("PORT");
+    string? aspnetUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+
+    if (string.IsNullOrWhiteSpace(aspnetUrls))
     {
-        options.ListenAnyIP(5005);
-    });
+        int port = int.TryParse(portEnv, out var parsedPort) ? parsedPort : 8080;
+        builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+    }
 
     builder.Services.AddCors(options =>
     {
@@ -91,7 +103,7 @@ try
         if (path.StartsWith("/api/v1/vault", StringComparison.OrdinalIgnoreCase))
         {
             var remoteIp = context.Connection.RemoteIpAddress?.ToString();
-            
+
             if (remoteIp == "::1") remoteIp = "127.0.0.1";
 
             bool ipAutorizado = false;
@@ -102,7 +114,7 @@ try
                 var cmd = connection.CreateCommand();
                 cmd.CommandText = "SELECT COUNT(1) FROM AdminUsers WHERE AssociatedIp = @ip;";
                 cmd.Parameters.AddWithValue("@ip", (object?)remoteIp ?? DBNull.Value);
-                
+
                 long count = (long)(await cmd.ExecuteScalarAsync() ?? 0L);
                 if (count > 0 || remoteIp == "127.0.0.1")
                 {
@@ -118,7 +130,10 @@ try
             {
                 Log.Warning("Acesso negado para o IP {Ip} na rota protegida {Path}", remoteIp, path);
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await context.Response.WriteAsJsonAsync(new { erro = $"Acesso negado. O IP da sua máquina ({remoteIp}) não está vinculado à ficha de nenhum colaborador autorizado." });
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    erro = $"Acesso negado. O IP da sua máquina ({remoteIp}) não está vinculado à ficha de nenhum colaborador autorizado."
+                });
                 return;
             }
         }
@@ -133,6 +148,58 @@ try
     const string ExpectedApiKey = "guardia-secret-key-2026";
 
     // ==========================================
+    // HEALTH CHECK E CONSULTA DE ALVOS
+    // ==========================================
+    app.MapGet("/health", () => Results.Ok(new
+    {
+        status = "Healthy",
+        service = "GuardiA.API",
+        timestampUtc = DateTimeOffset.UtcNow
+    }))
+    .WithName("HealthCheck")
+    .WithTags("Saúde");
+
+    app.MapGet("/api/v1/targets", async () =>
+    {
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source={dbPath}");
+            await connection.OpenAsync();
+
+            var cmd = connection.CreateCommand();
+            cmd.CommandText = @"
+                SELECT Id, Url, TargetBrand, HttpStatus, LastStatus, IsActive, LastChecked
+                FROM MonitoredTargets
+                ORDER BY Id DESC;";
+
+            var targets = new List<object>();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                targets.Add(new
+                {
+                    Id = reader.GetInt32(0),
+                    Url = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                    TargetBrand = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                    HttpStatus = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
+                    LastStatus = reader.IsDBNull(4) ? null : reader.GetString(4),
+                    IsActive = !reader.IsDBNull(5) && reader.GetInt32(5) == 1,
+                    LastChecked = reader.IsDBNull(6) ? null : reader.GetString(6)
+                });
+            }
+
+            return Results.Ok(targets);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Erro ao listar alvos monitorados.");
+            return Results.Problem($"Erro ao listar alvos: {ex.Message}");
+        }
+    })
+    .WithName("ListarAlvos")
+    .WithTags("Monitoramento Autônomo");
+
+    // ==========================================
     // MÓDULOS DA API (Minimal APIs)
     // ==========================================
     app.MapPost("/api/v1/scanner/url", async (UrlScanRequest request) =>
@@ -143,7 +210,7 @@ try
         try
         {
             var targetUrl = request.Url;
-            if (!targetUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && 
+            if (!targetUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
                 !targetUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 targetUrl = "https://" + targetUrl;
@@ -175,18 +242,11 @@ try
     .WithName("AnalisarUrl")
     .WithTags("Varredura de Links");
 
-    app.MapPost("/api/targets/{id:int}/scan", async (int id, /* seu DbContext ou serviço */ CancellationToken ct) =>
-{
-    // Localize o alvo pelo id, execute a verificação e persista o resultado
-    return Results.Ok(new { targetId = id, scannedAt = DateTimeOffset.UtcNow, status = "Completed" });
-});
-
     app.MapPost("/api/v1/targets/{id}/scan", async (int id, HttpClient httpClient) =>
     {
         using var connection = new SqliteConnection($"Data Source={dbPath}");
         await connection.OpenAsync();
 
-        // 1. Buscar a URL do alvo pelo ID
         var selectCmd = connection.CreateCommand();
         selectCmd.CommandText = "SELECT Url FROM MonitoredTargets WHERE Id = $id;";
         selectCmd.Parameters.AddWithValue("$id", id);
@@ -198,21 +258,19 @@ try
         int statusCode = 0;
         try
         {
-            // 2. Executar o scanner HTTP com timeout controlado de 5 segundos
             httpClient.Timeout = TimeSpan.FromSeconds(5);
             var response = await httpClient.GetAsync(url);
             statusCode = (int)response.StatusCode;
         }
         catch
         {
-            statusCode = 503; // Erro de conexão / Indisponível / Timeout
+            statusCode = 503;
         }
 
-        // 3. Atualizar o status e data da última verificação no banco
         var updateCmd = connection.CreateCommand();
         updateCmd.CommandText = @"
-            UPDATE MonitoredTargets 
-            SET HttpStatus = $status, LastChecked = datetime('now') 
+            UPDATE MonitoredTargets
+            SET HttpStatus = $status, LastChecked = datetime('now')
             WHERE Id = $id;";
         updateCmd.Parameters.AddWithValue("$status", statusCode);
         updateCmd.Parameters.AddWithValue("$id", id);
@@ -374,7 +432,7 @@ try
         string dkim = ProgramHelpers.ExtractHeaderValue(header, @"dkim=(\w+)");
         string dmarc = ProgramHelpers.ExtractHeaderValue(header, @"dmarc=(\w+)");
 
-        bool spoofingRisk = !string.IsNullOrEmpty(from) && !string.IsNullOrEmpty(returnPath) && 
+        bool spoofingRisk = !string.IsNullOrEmpty(from) && !string.IsNullOrEmpty(returnPath) &&
                             !from.Equals(returnPath, StringComparison.OrdinalIgnoreCase);
 
         return Results.Ok(new
