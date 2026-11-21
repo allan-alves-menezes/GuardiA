@@ -3,46 +3,46 @@ using GuardiA.Admin.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var apiBaseUrl = builder.Configuration["GuardiaApi:BaseUrl"];
+if (string.IsNullOrWhiteSpace(apiBaseUrl))
+{
+    apiBaseUrl = "http://localhost:8080/";
+}
+else if (!apiBaseUrl.EndsWith("/"))
+{
+    apiBaseUrl += "/";
+}
+
+var baseUri = new Uri(apiBaseUrl);
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Configuração flexível da URL base da API (Render / variáveis de ambiente ou localhost)
-var rawBaseUrl = builder.Configuration["API_BASE_URL"]
-    ?? builder.Configuration["GuardiaApi:BaseUrl"]
-    ?? "http://localhost:5005/";
-
-var normalizedBaseUrl = rawBaseUrl.EndsWith('/') ? rawBaseUrl : $"{rawBaseUrl}/";
-
 builder.Services.AddHttpClient("GuardiaApi", client =>
 {
-    client.BaseAddress = new Uri(normalizedBaseUrl);
-    client.Timeout = TimeSpan.FromSeconds(5);
+    client.BaseAddress = baseUri;
+    client.Timeout = TimeSpan.FromSeconds(15);
 });
 
-builder.Services.AddScoped(sp =>
+builder.Services.AddTransient(sp =>
 {
     var factory = sp.GetRequiredService<IHttpClientFactory>();
-    return factory.CreateClient("GuardiaApi");
+    var client = factory.CreateClient("GuardiaApi");
+    client.BaseAddress ??= baseUri;
+    return client;
 });
 
-// Serviços da aplicação
-builder.Services.AddScoped<TargetService>();
 builder.Services.AddSingleton<GuardiaTelemetryService>();
-
-// Worker autônomo em segundo plano
+builder.Services.AddScoped<TargetService>();
 builder.Services.AddHostedService<GuardiASentinelWorker>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
-
-app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();

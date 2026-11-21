@@ -1,17 +1,18 @@
 ﻿@inherits LayoutComponentBase
 @implements IDisposable
-@inject GuardiA.Admin.Services.GuardiaTelemetryService Telemetry
+@using GuardiA.Admin.Services
+@inject GuardiaTelemetryService Telemetry
 @inject NavigationManager Nav
 
-<div class="guardia-wrapper d-flex min-vh-100 text-light">
-    <!-- Barra Lateral (Sidebar) -->
-    <aside class="guardia-sidebar d-flex flex-column p-3" aria-label="Navegação principal do GuardiA">
-        <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+<div class="guardia-wrapper d-flex min-vh-100">
+    <!-- Barra Lateral (Sidebar) - Fixa à esquerda -->
+    <aside class="guardia-sidebar d-flex flex-column p-3" aria-label="Navegação principal">
+        <div class="d-flex align-items-center mb-4 px-2">
             <i class="bi bi-shield-shaded fs-3 text-info me-2" aria-hidden="true"></i>
-            <span class="fs-4 fw-bold tracking-wide text-white" translate="no">Guardi<span class="text-info">A</span></span>
+            <span class="fs-4 fw-bold text-white" translate="no">Guardi<span class="text-info">A</span></span>
         </div>
 
-        <ul class="nav nav-pills flex-column mb-auto gap-2">
+        <ul class="nav nav-pills flex-column mb-auto gap-1">
             <li class="nav-item">
                 <NavLink href="/" Match="NavLinkMatch.All" class="nav-link guardia-nav-link">
                     <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i> Painel
@@ -32,26 +33,32 @@
                     <i class="bi bi-bug me-2" aria-hidden="true"></i> Vulnerabilidades
                 </NavLink>
             </li>
+            <li class="nav-item">
+                <NavLink href="/agentes" class="nav-link guardia-nav-link">
+                    <i class="bi bi-pc-horizontal me-2" aria-hidden="true"></i> Agentes
+                </NavLink>
+            </li>
         </ul>
 
-        <div class="mt-auto pt-3 border-top border-secondary border-opacity-25 small text-secondary">
-            <div class="d-flex align-items-center justify-content-between mb-1">
-                <div class="d-flex align-items-center">
+        <!-- Rodapé da Sidebar (Status da API) -->
+        <div class="mt-auto p-3 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25" style="font-size: 0.85rem;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center text-secondary">
                     <span class="status-dot @StatusDotClass me-2" aria-hidden="true"></span>
                     <span>API: @Telemetry.ApiStatusLabel</span>
                 </div>
                 <button type="button"
                         class="btn btn-sm btn-link text-info p-0"
                         @onclick="RefreshHealthAsync"
-                        aria-label="Verificar status da API agora"
-                        title="Verificar status da API">
+                        title="Atualizar status da API">
                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                 </button>
             </div>
-            @if (Telemetry.LastScanAt is not null)
+            @if (Telemetry.LastScanAt.HasValue)
             {
-                <div class="text-muted" style="font-size: 0.75rem;">
-                    Última varredura: @Telemetry.LastScanAt.Value.ToLocalTime().ToString("HH:mm:ss")
+                <div class="text-muted small">
+                    Última varredura: <br>
+                    <strong>@Telemetry.LastScanAt.Value.ToLocalTime().ToString("G")</strong>
                 </div>
             }
         </div>
@@ -59,122 +66,57 @@
 
     <!-- Área Principal -->
     <div class="flex-grow-1 d-flex flex-column guardia-main">
-        <!-- Barra Superior -->
-        <header class="guardia-topbar px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-3">
-                <h5 class="mb-0 fw-semibold text-white">GuardiA Admin - Painel de Monitoramento</h5>
-                <span class="badge @ProtectionBadgeClass px-3 py-1">
-                    <i class="bi @ProtectionBadgeIcon me-1" aria-hidden="true"></i> @ProtectionBadgeText
-                </span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <div class="score-box px-3 py-1 rounded-3" aria-label="Pontuação de segurança">
-                    <span class="text-secondary small me-1">Score:</span>
-                    <span class="fw-bold text-info fs-5">@Telemetry.SecurityScore</span><span class="text-secondary small">/100</span>
+        <!-- Barra Superior (TopBar) - Fixa no topo -->
+        <header class="guardia-topbar px-4 py-3 d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-10">
+            <h1 class="h5 mb-0 fw-semibold text-white">GuardiA Admin - Painel de Segurança</h1>
+            <div class="d-flex align-items-center gap-4">
+                <!-- Área do Score de Segurança -->
+                <div class="score-box px-3 py-1 rounded-3 d-flex align-items-center gap-2" aria-label="Pontuação de segurança">
+                    <span class="text-secondary small">Score:</span>
+                    <span class="fw-bold text-info fs-4">@Telemetry.SecurityScore</span>
+                    <span class="text-secondary small">/100</span>
+                    @if (Telemetry.SecurityScore >= 80)
+                    {
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ms-2 px-2 py-1 small fw-normal">
+                            <i class="bi bi-check-circle-fill me-1"></i> PROTEGIDO
+                        </span>
+                    }
+                </div>
+                <!-- Ícones de Notificação e Perfil -->
+                <div class="d-flex align-items-center gap-3 text-secondary fs-5">
+                    <button type="button" class="btn btn-link text-secondary p-0" aria-label="Notificações">
+                        <i class="bi bi-bell"></i>
+                    </button>
+                    <button type="button" class="btn btn-link text-secondary p-0" aria-label="Perfil">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
                 </div>
             </div>
         </header>
 
-        <!-- Conteúdo da Página -->
-        <main class="p-4 flex-grow-1" id="main-content">
+        <!-- Conteúdo Dinâmico da Página -->
+        <main class="p-4 flex-grow-1 overflow-auto" id="main-content">
             @Body
         </main>
     </div>
 </div>
 
-<style>
-    .guardia-wrapper {
-        background-color: #0b1120;
-        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
-    .guardia-sidebar {
-        width: 240px;
-        background-color: #0f172a;
-        border-right: 1px solid rgba(56, 189, 248, 0.15);
-    }
-    .guardia-nav-link {
-        color: #94a3b8;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-    }
-    .guardia-nav-link:hover {
-        color: #f8fafc;
-        background-color: rgba(56, 189, 248, 0.1);
-    }
-    .guardia-nav-link.active {
-        background-color: rgba(56, 189, 248, 0.15) !important;
-        color: #38bdf8 !important;
-        border-left: 3px solid #38bdf8;
-    }
-    .guardia-nav-link:focus-visible,
-    button:focus-visible,
-    a:focus-visible {
-        outline: 2px solid #38bdf8;
-        outline-offset: 2px;
-    }
-    .guardia-topbar {
-        background-color: #0f172a;
-        border-bottom: 1px solid rgba(56, 189, 248, 0.15);
-    }
-    .score-box {
-        background-color: #1e293b;
-        border: 1px solid rgba(56, 189, 248, 0.3);
-    }
-    .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-    .status-online {
-        background-color: #22c55e;
-        box-shadow: 0 0 8px #22c55e;
-    }
-    .status-offline {
-        background-color: #ef4444;
-        box-shadow: 0 0 8px #ef4444;
-    }
-</style>
-
 @code {
     private string StatusDotClass => Telemetry.IsApiOnline ? "status-online" : "status-offline";
 
-    private string ProtectionBadgeClass => !Telemetry.IsApiOnline
-        ? "bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-50"
-        : Telemetry.SecurityScore >= 80
-            ? "bg-success bg-opacity-25 text-success border border-success border-opacity-50"
-            : "bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50";
-
-    private string ProtectionBadgeIcon => !Telemetry.IsApiOnline
-        ? "bi-wifi-off"
-        : Telemetry.SecurityScore >= 80
-            ? "bi-check-circle-fill"
-            : "bi-exclamation-diamond-fill";
-
-    private string ProtectionBadgeText => !Telemetry.IsApiOnline
-        ? "SEM TELEMETRIA"
-        : Telemetry.SecurityScore >= 80
-            ? "PROTEGIDO"
-            : "ATENÇÃO";
-
     protected override async Task OnInitializedAsync()
     {
-        Telemetry.OnStateChanged += HandleTelemetryChanged;
         await Telemetry.CheckApiHealthAsync();
-    }
-
-    private void HandleTelemetryChanged()
-    {
-        _ = InvokeAsync(StateHasChanged);
     }
 
     private async Task RefreshHealthAsync()
     {
         await Telemetry.CheckApiHealthAsync();
+        StateHasChanged();
     }
 
     public void Dispose()
     {
-        Telemetry.OnStateChanged -= HandleTelemetryChanged;
+        GC.SuppressFinalize(this);
     }
 }

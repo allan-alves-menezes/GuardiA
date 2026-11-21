@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="GuardiA.Admin/GuardiA.Admin.csproj" />
+  <Project Path="GuardiA.Agent/GuardiA.Agent.csproj" />
   <Project Path="GuardiA.API/GuardiA.API.csproj" />
 </Solution>

@@ -1,50 +1,350 @@
 ﻿@page "/"
-@rendermode InteractiveServer
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
 
-<PageTitle>GuardiA - Painel de Monitoramento</PageTitle>
+<PageTitle>Painel de Segurança | GuardiA Admin</PageTitle>
 
-<div class="container-fluid mt-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="text-light fw-bold">🛡️ GuardiA Sentinel - Painel de Controle</h2>
-            <p class="text-secondary">Visibilidade em tempo real do status de alvos e varreduras autônomas.</p>
-        </div>
-    </div>
+<div class="container-fluid p-0">
 
-    <!-- Cards de Resumo Rápido -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card bg-dark text-light border-secondary p-3 shadow-sm">
-                <h6 class="text-muted">Alvos Monitorados</h6>
-                <h3 class="fw-bold text-info">12</h3>
+    <div class="row g-3 mb-3">
+        <div class="col-xxl-8 col-lg-7">
+            <div class="guardia-card h-100">
+                <div class="guardia-card-header">
+                    <h2 class="guardia-card-title">Centro de Detecção de Ameaças</h2>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-muted" @onclick="LoadDashboardDataAsync" title="Atualizar dados">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                        <button type="button" class="btn-guardia-primary" @onclick="GoToTargets">
+                            <i class="bi bi-shield-check me-2"></i> Iniciar Varredura Manual
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-5 d-flex flex-column justify-content-center gap-3 ps-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="fs-1 text-danger lh-1"><i class="bi bi-x-octagon-fill"></i></div>
+                            <div>
+                                <div class="fs-3 fw-bold text-white">@ThreatsBlocked</div>
+                                <div class="text-muted small text-uppercase">Ameaças Críticas Bloqueadas (7d)</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="fs-1 text-warning lh-1"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div>
+                                <div class="fs-3 fw-bold text-white">@EventsAnalyzed</div>
+                                <div class="text-muted small text-uppercase">Eventos Suspeitos Analisados</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7 d-flex align-items-end justify-content-center pe-4">
+                        <div class="w-100 text-center text-info small py-5 border rounded" style="background: rgba(56, 189, 248, 0.05);">
+                            <i class="bi bi-graph-up-arrow fs-2 mb-2 d-block"></i>
+                            Monitoramento Contínuo Ativo
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-dark text-light border-secondary p-3 shadow-sm">
-                <h6 class="text-muted">Ameaças Detectadas</h6>
-                <h3 class="fw-bold text-danger">0</h3>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-dark text-light border-secondary p-3 shadow-sm">
-                <h6 class="text-muted">Status do Worker Autônomo</h6>
-                <h3 class="fw-bold text-success">🟢 Operacional</h3>
-            </div>
-        </div>
-    </div>
 
-    <!-- Área de Gráficos / Visualização -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card bg-dark text-light border-secondary p-4 shadow-sm">
-                <h4 class="mb-3">📈 Histórico de Varreduras e Atividade</h4>
-                <p class="text-muted">Aqui entram os gráficos de status dos alvos verificados pelo motor autônomo nas últimas 24 horas.</p>
-                
-                <!-- Espaço reservado para o seu componente de gráfico ou tabela dinâmica -->
-                <div class="p-5 text-center bg-secondary bg-opacity-10 rounded border border-secondary border-dashed">
-                    <span class="text-secondary">Gráfico de monitoramento carregado diretamente na raiz do sistema.</span>
+        <div class="col-xxl-4 col-lg-5">
+            <div class="guardia-card h-100">
+                <div class="guardia-card-header mb-2">
+                    <h3 class="guardia-card-title">Alvos Monitorados</h3>
+                    <a href="/targets" class="btn btn-link text-info p-0 small">Ver Tudo</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="guardia-table table table-borderless table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Alvo</th>
+                                <th>Status</th>
+                                <th class="text-end">Última Verif.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (IsLoading)
+                            {
+                                <tr><td colspan="3" class="text-center text-muted py-4">Carregando...</td></tr>
+                            }
+                            else if (RecentTargets.Count == 0)
+                            {
+                                <tr><td colspan="3" class="text-center text-muted py-4">Nenhum alvo cadastrado.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var target in RecentTargets)
+                                {
+                                    <tr>
+                                        <td class="text-white">@target.TargetBrand</td>
+                                        <td>
+                                            <span class="status-badge @target.StatusCss">@target.StatusLabel</span>
+                                        </td>
+                                        <td class="text-end text-muted small">@target.LastCheckedFormatted</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="row g-3">
+        <div class="col-lg-5 col-xl-4">
+            <div class="guardia-card h-100 d-flex flex-column">
+                <div class="guardia-card-header">
+                    <h3 class="guardia-card-title">Histórico de Conta &amp; Plano Gratuito</h3>
+                    <button type="button" class="btn btn-link text-info p-0 small" @onclick="GoToTargets">Ver Histórico</button>
+                </div>
+
+                <div class="flex-grow-1 d-flex flex-column justify-content-center p-3 rounded-3 mt-2" style="background: rgba(17, 24, 39, 0.4);">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-white fs-5 fw-semibold">Plano Gratuito</span>
+                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-1 rounded-pill small">Ativo</span>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 border border-secondary border-opacity-10 text-center" style="background-color: var(--guardia-bg);">
+                                <div class="text-muted small text-uppercase mb-1">Varreduras Usadas</div>
+                                <div class="fs-4 fw-bold text-info">@UsedScans <span class="text-muted fs-6">/ 100</span></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 border border-secondary border-opacity-10 text-center" style="background-color: var(--guardia-bg);">
+                                <div class="text-muted small text-uppercase mb-1">Agentes Ativos</div>
+                                <div class="fs-4 fw-bold text-white">@ActiveAgentsCount</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="@ProgressBarStyle"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7 col-xl-8">
+            <div class="guardia-card h-100">
+                <div class="guardia-card-header mb-2">
+                    <h3 class="guardia-card-title">Visão Geral dos Agentes</h3>
+                    <a href="/agentes" class="btn btn-link text-info p-0 small">Gerenciar Dispositivos</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="guardia-table table table-borderless table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Dispositivo</th>
+                                <th>CPU / RAM</th>
+                                <th class="text-center">Firewall</th>
+                                <th class="text-end">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (IsLoading)
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-4">Carregando agentes...</td></tr>
+                            }
+                            else if (MonitoredAgents.Count == 0)
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-4">Nenhum agente conectado ainda.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var agent in MonitoredAgents)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="bi bi-pc-horizontal text-secondary fs-5"></i>
+                                                <div>
+                                                    <div class="text-white fw-medium">@agent.MachineName</div>
+                                                    <div class="text-muted small">@agent.OsDescription</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-white small">@agent.CpuText</div>
+                                            <div class="text-muted small">@agent.RamText</div>
+                                        </td>
+                                        <td class="text-center">
+                                            @if (agent.FirewallActive)
+                                            {
+                                                <i class="bi bi-shield-check text-success fs-5" title="Firewall Ativo"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-shield-exclamation text-danger fs-5" title="Firewall Inativo"></i>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            @if (agent.IsOnline)
+                                            {
+                                                <span class="status-badge status-badge-online">Online</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge status-badge-vulnerable">Offline</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+@code {
+    private bool IsLoading { get; set; } = true;
+    private int ThreatsBlocked { get; set; }
+    private int EventsAnalyzed { get; set; }
+    private int UsedScans { get; set; }
+    private int ActiveAgentsCount { get; set; }
+
+    private string ProgressBarStyle => $"width: {Math.Clamp(UsedScans, 0, 100)}%;";
+
+    private List<TargetRowView> RecentTargets { get; set; } = new();
+    private List<AgentRowView> MonitoredAgents { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardDataAsync();
+    }
+
+    private void GoToTargets()
+    {
+        Nav.NavigateTo("/targets");
+    }
+
+    private async Task LoadDashboardDataAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            var targets = await Http.GetFromJsonAsync<List<TargetApiDto>>("api/v1/targets") ?? new List<TargetApiDto>();
+            EventsAnalyzed = targets.Count;
+            ThreatsBlocked = targets.Count(t => t.HttpStatus == 0 || t.HttpStatus >= 400);
+            UsedScans = targets.Count(t => !string.IsNullOrWhiteSpace(t.LastChecked));
+
+            RecentTargets = targets.Take(5).Select(t =>
+            {
+                string formattedDate = "Nunca";
+                if (!string.IsNullOrWhiteSpace(t.LastChecked) && DateTimeOffset.TryParse(t.LastChecked, out var dt))
+                {
+                    formattedDate = dt.ToLocalTime().ToString("dd/MM HH:mm");
+                }
+
+                string statusCss = t.HttpStatus == 200
+                    ? "status-badge-online"
+                    : (t.HttpStatus == 0 || t.HttpStatus >= 500 ? "status-badge-vulnerable" : "status-badge-needscheck");
+
+                string statusLabel = t.HttpStatus switch
+                {
+                    200 => "Online",
+                    0 => "Pendente",
+                    >= 500 => "Vulnerável",
+                    404 => "Não Encontrado",
+                    _ => $"HTTP {t.HttpStatus}"
+                };
+
+                return new TargetRowView
+                {
+                    TargetBrand = string.IsNullOrWhiteSpace(t.TargetBrand) ? t.Url : t.TargetBrand,
+                    StatusCss = statusCss,
+                    StatusLabel = statusLabel,
+                    LastCheckedFormatted = formattedDate
+                };
+            }).ToList();
+        }
+        catch
+        {
+            RecentTargets = new List<TargetRowView>();
+        }
+
+        try
+        {
+            var agents = await Http.GetFromJsonAsync<List<AgentApiDto>>("api/v1/agent/devices") ?? new List<AgentApiDto>();
+            var mappedAgents = agents.Select(a =>
+            {
+                bool online = (DateTimeOffset.UtcNow - a.LastSeenUtc).TotalSeconds <= 75;
+                bool fwOk = a.WindowsFirewallDomainEnabled == true
+                         || a.WindowsFirewallPrivateEnabled == true
+                         || a.WindowsFirewallPublicEnabled == true;
+
+                return new AgentRowView
+                {
+                    MachineName = a.MachineName,
+                    OsDescription = a.OsDescription,
+                    CpuText = $"CPU: {a.CpuLoadPercent:F1}%",
+                    RamText = $"RAM: {a.MemoryUsedPercent:F1}%",
+                    FirewallActive = fwOk,
+                    IsOnline = online
+                };
+            }).ToList();
+
+            ActiveAgentsCount = mappedAgents.Count(x => x.IsOnline);
+            MonitoredAgents = mappedAgents.Take(4).ToList();
+        }
+        catch
+        {
+            MonitoredAgents = new List<AgentRowView>();
+            ActiveAgentsCount = 0;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private sealed class TargetApiDto
+    {
+        public int Id { get; set; }
+        public string Url { get; set; } = string.Empty;
+        public string TargetBrand { get; set; } = string.Empty;
+        public int HttpStatus { get; set; }
+        public string? LastStatus { get; set; }
+        public bool IsActive { get; set; }
+        public string? LastChecked { get; set; }
+    }
+
+    private sealed class TargetRowView
+    {
+        public string TargetBrand { get; set; } = string.Empty;
+        public string StatusCss { get; set; } = string.Empty;
+        public string StatusLabel { get; set; } = string.Empty;
+        public string LastCheckedFormatted { get; set; } = "Nunca";
+    }
+
+    private sealed class AgentApiDto
+    {
+        public string DeviceKey { get; set; } = string.Empty;
+        public string ClientId { get; set; } = string.Empty;
+        public string MachineName { get; set; } = string.Empty;
+        public string OsDescription { get; set; } = string.Empty;
+        public DateTimeOffset LastSeenUtc { get; set; }
+        public double CpuLoadPercent { get; set; }
+        public double MemoryUsedPercent { get; set; }
+        public bool? WindowsFirewallDomainEnabled { get; set; }
+        public bool? WindowsFirewallPrivateEnabled { get; set; }
+        public bool? WindowsFirewallPublicEnabled { get; set; }
+    }
+
+    private sealed class AgentRowView
+    {
+        public string MachineName { get; set; } = string.Empty;
+        public string OsDescription { get; set; } = string.Empty;
+        public string CpuText { get; set; } = string.Empty;
+        public string RamText { get; set; } = string.Empty;
+        public bool FirewallActive { get; set; }
+        public bool IsOnline { get; set; }
+    }
+}

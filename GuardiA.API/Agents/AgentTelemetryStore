@@ -1,0 +1,64 @@
+using System.Collections.Concurrent;
+
+public sealed record AgentHeartbeatRequest(
+    string ClientId,
+    string MachineName,
+    string OsDescription,
+    string AgentVersion,
+    DateTimeOffset TimestampUtc,
+    double CpuLoadPercent,
+    double MemoryUsedPercent,
+    int ActiveTcpConnectionsCount,
+    bool? WindowsFirewallDomainEnabled,
+    bool? WindowsFirewallPrivateEnabled,
+    bool? WindowsFirewallPublicEnabled,
+    string? DefenderRealTimeStatus
+);
+
+public sealed record AgentDeviceState(
+    string ClientId,
+    string MachineName,
+    string OsDescription,
+    string AgentVersion,
+    DateTimeOffset LastSeenUtc,
+    double CpuLoadPercent,
+    double MemoryUsedPercent,
+    int ActiveTcpConnectionsCount,
+    bool? WindowsFirewallDomainEnabled,
+    bool? WindowsFirewallPrivateEnabled,
+    bool? WindowsFirewallPublicEnabled,
+    string? DefenderRealTimeStatus
+);
+
+public sealed class AgentTelemetryStore
+{
+    private readonly ConcurrentDictionary<string, AgentDeviceState> _devices = new(StringComparer.OrdinalIgnoreCase);
+
+    public AgentDeviceState Upsert(AgentHeartbeatRequest req)
+    {
+        var clientId = string.IsNullOrWhiteSpace(req.ClientId) ? "cliente-padrao" : req.ClientId.Trim();
+        var machineName = string.IsNullOrWhiteSpace(req.MachineName) ? "unknown-host" : req.MachineName.Trim();
+        var key = $"{clientId}::{machineName}";
+
+        var state = new AgentDeviceState(
+            ClientId: clientId,
+            MachineName: machineName,
+            OsDescription: req.OsDescription,
+            AgentVersion: req.AgentVersion,
+            LastSeenUtc: req.TimestampUtc == default ? DateTimeOffset.UtcNow : req.TimestampUtc,
+            CpuLoadPercent: req.CpuLoadPercent,
+            MemoryUsedPercent: req.MemoryUsedPercent,
+            ActiveTcpConnectionsCount: req.ActiveTcpConnectionsCount,
+            WindowsFirewallDomainEnabled: req.WindowsFirewallDomainEnabled,
+            WindowsFirewallPrivateEnabled: req.WindowsFirewallPrivateEnabled,
+            WindowsFirewallPublicEnabled: req.WindowsFirewallPublicEnabled,
+            DefenderRealTimeStatus: req.DefenderRealTimeStatus
+        );
+
+        _devices[key] = state;
+        return state;
+    }
+
+    public IReadOnlyCollection<AgentDeviceState> GetAll() =>
+        _devices.Values.OrderByDescending(x => x.LastSeenUtc).ToArray();
+}

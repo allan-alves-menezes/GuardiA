@@ -1,15 +1,17 @@
 @page "/targets"
 @rendermode InteractiveServer
+@using System.Net.Http.Json
 @using GuardiA.Admin.Models
 @using GuardiA.Admin.Services
 @inject TargetService TargetService
+@inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Alvos &amp; Varredura - GuardiA</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <div>
         <h4 class="mb-1 text-white fw-semibold">Alvos &amp; Varredura</h4>
-        <p class="text-secondary small mb-0">Gerenciamento de alvos monitorados e disparo manual de varredura</p>
+        <p class="text-secondary small mb-0">Cadastro de URLs, gerenciamento de alvos monitorados e disparo manual de varredura</p>
     </div>
 
     <button type="button"
@@ -29,6 +31,56 @@
     </div>
 }
 
+<!-- Formulário para inserir novo alvo de URL -->
+<div class="card bg-dark border-secondary text-light mb-4 shadow-sm">
+    <div class="card-header border-secondary fw-semibold">
+        Novo Alvo de URL para Varredura
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-5">
+                <label class="form-label small text-secondary">URL ou Domínio *</label>
+                <input type="text"
+                       class="form-control bg-secondary text-white border-0"
+                       placeholder="Ex.: https://example.com ou example.com"
+                       @bind="_newUrl" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-secondary">Cliente / Marca</label>
+                <input type="text"
+                       class="form-control bg-secondary text-white border-0"
+                       placeholder="Ex.: Meu Site"
+                       @bind="_newBrand" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-secondary">Chave da Conta (X-Api-Key opcional)</label>
+                <input type="text"
+                       class="form-control bg-secondary text-white border-0 font-monospace"
+                       placeholder="grd_live_..."
+                       @bind="_apiKey" />
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="button"
+                    class="btn btn-sm btn-primary fw-semibold"
+                    disabled="@_isAdding"
+                    @onclick="AddTargetAsync">
+                @if (_isAdding)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    <span>Cadastrando...</span>
+                }
+                else
+                {
+                    <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>
+                    <span>Adicionar e Ler Alvo</span>
+                }
+            </button>
+        </div>
+    </div>
+</div>
+
 @if (_isLoading)
 {
     <div class="text-secondary small">Carregando alvos...</div>
@@ -36,7 +88,7 @@
 else if (_targets is null || _targets.Count == 0)
 {
     <div class="alert alert-secondary bg-dark text-secondary border-secondary">
-        Nenhum alvo encontrado.
+        Nenhum alvo encontrado. Cadastre uma URL acima para iniciar os testes.
     </div>
 }
 else
@@ -102,13 +154,35 @@ else
 @code {
     private List<TargetDto>? _targets;
     private bool _isLoading = true;
+    private bool _isAdding;
     private int? _scanningTargetId;
+    private string _newUrl = string.Empty;
+    private string _newBrand = string.Empty;
+    private string _apiKey = string.Empty;
     private string? _feedbackMessage;
     private string _feedbackCssClass = "alert-info";
 
     protected override async Task OnInitializedAsync()
     {
         await LoadTargetsAsync();
+    }
+
+    private HttpClient CreateApiClient()
+    {
+        var client = HttpClientFactory.CreateClient("GuardiaApi");
+        if (client.BaseAddress is null)
+        {
+            client = HttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri("http://localhost:8080/");
+        }
+
+        client.DefaultRequestHeaders.Remove("X-Api-Key");
+        if (!string.IsNullOrWhiteSpace(_apiKey))
+        {
+            client.DefaultRequestHeaders.Add("X-Api-Key", _apiKey.Trim());
+        }
+
+        return client;
     }
 
     private async Task LoadTargetsAsync()
@@ -121,6 +195,55 @@ else
         finally
         {
             _isLoading = false;
+        }
+    }
+
+    private async Task AddTargetAsync()
+    {
+        if (_isAdding)
+        {
+            return;
+        }
+
+        _feedbackMessage = null;
+
+        if (string.IsNullOrWhiteSpace(_newUrl))
+        {
+            _feedbackCssClass = "alert-warning";
+            _feedbackMessage = "Informe uma URL ou domínio antes de cadastrar.";
+            return;
+        }
+
+        _isAdding = true;
+        try
+        {
+            var client = CreateApiClient();
+            var response = await client.PostAsJsonAsync("api/v1/targets", new
+            {
+                Url = _newUrl.Trim(),
+                TargetBrand = string.IsNullOrWhiteSpace(_newBrand) ? null : _newBrand.Trim()
+            });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _feedbackCssClass = "alert-danger";
+                _feedbackMessage = $"Falha ao cadastrar alvo (HTTP {(int)response.StatusCode}).";
+                return;
+            }
+
+            _newUrl = string.Empty;
+            _feedbackCssClass = "alert-success";
+            _feedbackMessage = "Alvo cadastrado com sucesso! Clique em 'Varredura agora' para realizar a leitura.";
+            await LoadTargetsAsync();
+        }
+        catch (Exception ex)
+        {
+            _feedbackCssClass = "alert-danger";
+            _feedbackMessage = $"Erro ao cadastrar alvo: {ex.Message}";
+        }
+        finally
+        {
+            _isAdding = false;
         }
     }
 
