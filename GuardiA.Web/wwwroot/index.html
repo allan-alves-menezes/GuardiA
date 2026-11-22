@@ -118,6 +118,10 @@
       font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .btn-outline:hover {
@@ -163,6 +167,9 @@
       font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .side-btn:hover {
@@ -174,6 +181,15 @@
       color: #fff;
       background: rgba(2, 132, 199, 0.25);
       border-color: rgba(34, 211, 238, 0.45);
+    }
+
+    .alert-badge-count {
+      background: var(--err);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: 999px;
     }
 
     .soc-frame {
@@ -194,7 +210,7 @@
       border: 1px solid var(--border-soft);
       border-radius: 10px;
       padding: 10px 16px;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
     .state-label {
@@ -215,6 +231,11 @@
       letter-spacing: 0.5px;
     }
 
+    .state-badge.risk {
+      background: var(--err);
+      color: #fff;
+    }
+
     .score-box {
       font-size: 1rem;
       font-weight: 800;
@@ -223,6 +244,21 @@
       border: 1px solid rgba(16, 185, 129, 0.35);
       padding: 4px 12px;
       border-radius: 8px;
+    }
+
+    .risk-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fecaca;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
     }
 
     .charts-grid {
@@ -376,9 +412,15 @@
       margin-top: 10px;
     }
 
+    .target-row.risk-row {
+      border-color: rgba(239, 68, 68, 0.55);
+      background: rgba(69, 10, 10, 0.35);
+    }
+
     .target-info { display: flex; flex-direction: column; gap: 3px; }
     .target-name { font-weight: 700; font-size: 0.92rem; }
     .target-url { font-size: 0.8rem; color: var(--muted); word-break: break-all; }
+    .target-risk { font-size: 0.78rem; color: #fca5a5; font-weight: 600; }
 
     .tag-ok {
       color: var(--ok);
@@ -398,6 +440,16 @@
       border-radius: 999px;
       background: rgba(245, 158, 11, 0.14);
       border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .tag-err {
+      color: #fca5a5;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.45);
     }
 
     .empty-msg {
@@ -423,13 +475,18 @@
       font-size: 0.84rem;
     }
 
-    .sev-high { color: var(--err); font-weight: 700; }
+    .alert-item.danger {
+      border-left-color: var(--err);
+      background: rgba(69, 10, 10, 0.35);
+    }
+
+    .sev-high { color: #fca5a5; font-weight: 700; }
     .sev-med { color: var(--warn); font-weight: 700; }
     .sev-low { color: var(--cyan); font-weight: 700; }
 
     .feedback { margin-top: 10px; font-size: 0.84rem; min-height: 18px; }
     .feedback.ok { color: var(--ok); }
-    .feedback.err { color: var(--err); }
+    .feedback.err { color: #fca5a5; }
 
     /* Modal Login / Cadastro */
     .modal-bg {
@@ -514,18 +571,33 @@
 
   <div class="shell">
     <aside class="sidebar">
-      <button id="navMonitor" class="side-btn active" type="button" onclick="switchView('monitor')">Monitoramento</button>
-      <button id="navAlerts" class="side-btn" type="button" onclick="switchView('alerts')">Alertas</button>
-      <button id="navHistory" class="side-btn" type="button" onclick="switchView('history')">Histórico</button>
+      <button id="navMonitor" class="side-btn active" type="button" onclick="switchView('monitor')">
+        <span>Monitoramento</span>
+      </button>
+      <button id="navAlerts" class="side-btn" type="button" onclick="switchView('alerts')">
+        <span>Alertas</span>
+        <span id="alertCountBadge" class="alert-badge-count hidden">0</span>
+      </button>
+      <button id="navHistory" class="side-btn" type="button" onclick="switchView('history')">
+        <span>Histórico</span>
+      </button>
     </aside>
 
     <main class="soc-frame">
       <div class="status-strip">
         <div class="state-label">
           <span>Estado Geral da Segurança:</span>
-          <span class="state-badge">PROTEGIDO</span>
+          <span id="securityStateBadge" class="state-badge">PROTEGIDO</span>
         </div>
-        <div id="scoreDisplay" class="score-box">94/100</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="autoMonitorLabel" style="font-size:0.78rem;color:var(--cyan);">Monitoramento contínuo ativo</span>
+          <div id="scoreDisplay" class="score-box">94/100</div>
+        </div>
+      </div>
+
+      <div id="riskNotificationBanner" class="risk-banner hidden">
+        <span id="riskNotificationText">⚠️ Risco detectado em um alvo monitorado.</span>
+        <button class="btn-outline" type="button" onclick="switchView('alerts')">Ver Alertas</button>
       </div>
 
       <!-- Tela Principal: Monitoramento -->
@@ -541,17 +613,17 @@
                 <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(148,163,184,0.16)" stroke-width="14"></circle>
                 <circle id="donutOk" cx="60" cy="60" r="44" fill="none" stroke="#10b981" stroke-width="14"
                   stroke-dasharray="0 276.46" transform="rotate(-90 60 60)"></circle>
-                <circle id="donutWarn" cx="60" cy="60" r="44" fill="none" stroke="#f59e0b" stroke-width="14"
+                <circle id="donutWarn" cx="60" cy="60" r="44" fill="none" stroke="#ef4444" stroke-width="14"
                   stroke-dasharray="0 276.46" transform="rotate(-90 60 60)"></circle>
                 <text id="donutCenter" x="60" y="65" text-anchor="middle" fill="#e2e8f0" font-size="16" font-weight="800">0%</text>
               </svg>
               <div class="legend-list">
                 <div class="legend-item">
-                  <span><i class="legend-dot" style="background:#10b981;"></i>Online / Saudável</span>
+                  <span><i class="legend-dot" style="background:#10b981;"></i>Seguro / Online</span>
                   <strong id="legOkCount">0</strong>
                 </div>
                 <div class="legend-item">
-                  <span><i class="legend-dot" style="background:#f59e0b;"></i>Pendente / Alerta</span>
+                  <span><i class="legend-dot" style="background:#ef4444;"></i>Risco / Alerta</span>
                   <strong id="legWarnCount">0</strong>
                 </div>
                 <div class="legend-item">
@@ -585,7 +657,7 @@
             </div>
 
             <div id="loginNotice" class="notice-bar">
-              <span>Faça login ou cadastre-se no canto superior direito para cadastrar alvos e salvar histórico.</span>
+              <span>Faça login ou cadastre-se no canto superior direito para cadastrar alvos, navegar e receber notificações de risco.</span>
               <button class="btn-cyan" type="button" onclick="openAuth('login')">Entrar / Cadastrar</button>
             </div>
 
@@ -596,7 +668,7 @@
               </div>
               <div>
                 <label for="targetLabel">Identificação (opcional)</label>
-                <input id="targetLabel" type="text" placeholder="Ex.: API Principal" />
+                <input id="targetLabel" type="text" placeholder="Ex.: Site de Navegação" />
               </div>
               <button class="btn-cyan" type="submit">Adicionar Alvo</button>
             </form>
@@ -609,20 +681,17 @@
 
           <div class="box">
             <div class="box-title">
-              <span>Eventos e Alertas Recentes</span>
-              <span style="font-size:0.76rem;color:var(--muted);">Tempo Real</span>
+              <span>Dispositivos e Notificações</span>
+              <span style="font-size:0.76rem;color:var(--muted);">Endpoint + Web</span>
             </div>
-            <div class="alert-item">
-              <span>TLS / HTTPS e cabeçalhos de segurança verificados</span>
-              <span class="sev-low">Ativo</span>
+            <div id="devicesContainer">
+              <p class="empty-msg">Carregando endpoints...</p>
             </div>
-            <div class="alert-item">
-              <span>Monitoramento contínuo de disponibilidade HTTP</span>
-              <span class="sev-med">Em dia</span>
-            </div>
-            <div class="alert-item">
-              <span>Integridade da sessão e credenciais protegidas</span>
-              <span class="sev-low">OK</span>
+            <div id="recentAlertsContainer" style="margin-top:10px;">
+              <div class="alert-item">
+                <span>Adicione uma URL, clique em Abrir e deixe o GuardiA monitorar</span>
+                <span class="sev-low">Ativo</span>
+              </div>
             </div>
           </div>
         </div>
@@ -631,14 +700,12 @@
       <!-- Aba Alertas -->
       <section id="viewAlerts" class="hidden">
         <div class="box">
-          <div class="box-title"><span>Alertas de Segurança</span></div>
-          <div class="alert-item">
-            <span>Verificação de endpoints críticos e certificados ativa</span>
-            <span class="sev-low">Baixo</span>
-          </div>
-          <div class="alert-item">
-            <span>Adicione URLs na aba Monitoramento para acompanhar respostas HTTP</span>
-            <span class="sev-med">Info</span>
+          <div class="box-title"><span>Notificações de Risco e Segurança</span></div>
+          <div id="alertsListContainer">
+            <div class="alert-item">
+              <span>Nenhum risco crítico detectado nos alvos verificados até o momento.</span>
+              <span class="sev-low">Protegido</span>
+            </div>
           </div>
         </div>
       </section>
@@ -705,7 +772,9 @@
       sessionKey: localStorage.getItem("guardia_session_key") || "",
       user: JSON.parse(localStorage.getItem("guardia_user") || "null"),
       targets: [],
-      pulseCount: 0
+      devices: [],
+      pulseCount: 0,
+      notifiedRisks: new Set()
     };
 
     function headers() {
@@ -722,26 +791,134 @@
       document.getElementById("loginNotice").classList.toggle("hidden", logged);
     }
 
+    function playAlertBeep() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.value = 740;
+        gain.gain.value = 0.06;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        setTimeout(() => { osc.stop(); ctx.close(); }, 220);
+      } catch {}
+    }
+
+    function notifyUserOfRisk(target, reason) {
+      const key = `${target.id || target.url}:${reason}`;
+      if (!state.notifiedRisks.has(key)) {
+        state.notifiedRisks.add(key);
+        playAlertBeep();
+        if ("Notification" in window && Notification.permission === "granted") {
+          try {
+            new Notification("GuardiA — Alerta de Risco", {
+              body: `${target.label || target.url}: ${reason}`
+            });
+          } catch {}
+        }
+      }
+    }
+
+    function renderAlertsAndRisk() {
+      const riskyTargets = state.targets.filter(t => Boolean(t.hasRisk || t.HasRisk));
+      const badge = document.getElementById("alertCountBadge");
+      const banner = document.getElementById("riskNotificationBanner");
+      const stateBadge = document.getElementById("securityStateBadge");
+      const scoreEl = document.getElementById("scoreDisplay");
+
+      if (riskyTargets.length > 0) {
+        badge.textContent = String(riskyTargets.length);
+        badge.classList.remove("hidden");
+        banner.classList.remove("hidden");
+        const first = riskyTargets[0];
+        const reason = first.riskSummary || first.RiskSummary || "Risco identificado na verificação do alvo.";
+        document.getElementById("riskNotificationText").textContent =
+          `⚠️ Alerta de Risco (${riskyTargets.length}): ${first.label || first.url} — ${reason}`;
+
+        stateBadge.textContent = "RISCO DETECTADO";
+        stateBadge.classList.add("risk");
+        const score = Math.max(25, 94 - riskyTargets.length * 18);
+        scoreEl.textContent = `${score}/100`;
+        scoreEl.style.color = "#fca5a5";
+
+        riskyTargets.forEach(t => notifyUserOfRisk(t, t.riskSummary || t.RiskSummary || "Risco detectado"));
+      } else {
+        badge.classList.add("hidden");
+        banner.classList.add("hidden");
+        stateBadge.textContent = "PROTEGIDO";
+        stateBadge.classList.remove("risk");
+        scoreEl.textContent = "94/100";
+        scoreEl.style.color = "var(--ok)";
+      }
+
+      const alertsHtml = riskyTargets.length
+        ? riskyTargets.map(t => `
+            <div class="alert-item danger">
+              <div>
+                <strong>${esc(t.label || "Alvo")}</strong> — ${esc(t.riskSummary || t.RiskSummary || "Risco detectado")}
+                <div class="target-url">${esc(t.url || "")}</div>
+              </div>
+              <span class="sev-high">Risco</span>
+            </div>
+          `).join("")
+        : `<div class="alert-item">
+             <span>Nenhum risco detectado nos alvos monitorados.</span>
+             <span class="sev-low">Protegido</span>
+           </div>`;
+
+      document.getElementById("recentAlertsContainer").innerHTML = alertsHtml;
+      document.getElementById("alertsListContainer").innerHTML = alertsHtml;
+    }
+
+    function renderDevices() {
+      const box = document.getElementById("devicesContainer");
+      if (!state.devices.length) {
+        box.innerHTML = '<p class="empty-msg">Nenhum agente de endpoint conectado no momento.</p>';
+        return;
+      }
+      box.innerHTML = state.devices.map(d => `
+        <div class="target-row">
+          <div class="target-info">
+            <span class="target-name">${esc(d.hostname || d.deviceId || "Endpoint")} (${esc(d.os || "OS")})</span>
+            <span class="target-url">ID: ${esc(d.deviceId || "")} — Último sinal: ${esc(d.lastSeenUtc || "")}</span>
+          </div>
+          <span class="tag-ok">${esc(d.status || "Online")}</span>
+        </div>
+      `).join("");
+    }
+
+    async function loadDevices() {
+      try {
+        const r = await fetch("/api/v1/agent/devices");
+        if (r.ok) {
+          const d = await r.json();
+          state.devices = Array.isArray(d) ? d : (d.value || d.items || []);
+          renderDevices();
+        }
+      } catch {}
+    }
+
     function updateCharts() {
       const total = state.targets.length;
-      const okCount = state.targets.filter(t => {
-        const st = t.lastStatus || t.status || "";
-        return st === "Online" || String(st).includes("200");
-      }).length;
-      const warnCount = Math.max(0, total - okCount);
+      const riskyCount = state.targets.filter(t => Boolean(t.hasRisk || t.HasRisk)).length;
+      const safeCount = Math.max(0, total - riskyCount);
 
-      const circ = 2 * Math.PI * 44; // ~276.46
-      const okLen = total > 0 ? (okCount / total) * circ : 0;
-      const warnLen = total > 0 ? (warnCount / total) * circ : 0;
-      const pct = total > 0 ? Math.round((okCount / total) * 100) : 0;
+      const circ = 2 * Math.PI * 44;
+      const okLen = total > 0 ? (safeCount / total) * circ : 0;
+      const warnLen = total > 0 ? (riskyCount / total) * circ : 0;
+      const pct = total > 0 ? Math.round((safeCount / total) * 100) : 0;
 
       document.getElementById("donutOk").setAttribute("stroke-dasharray", `${okLen} ${circ}`);
       document.getElementById("donutWarn").setAttribute("stroke-dasharray", `${warnLen} ${circ}`);
       document.getElementById("donutWarn").setAttribute("stroke-dashoffset", `${-okLen}`);
       document.getElementById("donutCenter").textContent = total > 0 ? `${pct}%` : "0%";
       document.getElementById("donutSummary").textContent = `${total} ${total === 1 ? "alvo" : "alvos"}`;
-      document.getElementById("legOkCount").textContent = String(okCount);
-      document.getElementById("legWarnCount").textContent = String(warnCount);
+      document.getElementById("legOkCount").textContent = String(safeCount);
+      document.getElementById("legWarnCount").textContent = String(riskyCount);
       document.getElementById("legTotalCount").textContent = String(total);
 
       const baseSeries = [0.35, 0.55, 0.42, 0.75, 0.62, 0.85, 0.72, 0.90];
@@ -778,6 +955,7 @@
       document.getElementById("navHistory").classList.toggle("active", view === "history");
 
       if (view === "history") loadHistory();
+      if (view === "alerts") renderAlertsAndRisk();
     }
 
     function openAuth(tab = "login") {
@@ -825,6 +1003,10 @@
         state.user = d.user || { email: document.getElementById("loginEmail").value.trim() };
         localStorage.setItem("guardia_session_key", state.sessionKey);
         localStorage.setItem("guardia_user", JSON.stringify(state.user));
+
+        if ("Notification" in window && Notification.permission === "default") {
+          Notification.requestPermission().catch(() => {});
+        }
 
         updateAuthBar();
         closeAuth();
@@ -881,6 +1063,7 @@
       const box = document.getElementById("targetsContainer");
       document.getElementById("targetCount").textContent = `${state.targets.length} ${state.targets.length === 1 ? "alvo" : "alvos"}`;
       updateCharts();
+      renderAlertsAndRisk();
 
       if (!state.targets.length) {
         box.innerHTML = '<p class="empty-msg">Nenhum alvo cadastrado ainda.</p>';
@@ -888,22 +1071,36 @@
       }
 
       box.innerHTML = state.targets.map(t => {
-        const st = t.lastStatus || t.status || "Pendente";
-        const ok = st === "Online" || String(st).includes("200");
+        const id = t.id || t.Id || "";
+        const st = t.lastStatus || t.LastStatus || t.status || "Pendente";
+        const hasRisk = Boolean(t.hasRisk || t.HasRisk);
+        const riskText = t.riskSummary || t.RiskSummary || "";
+        const lat = (t.lastLatencyMs ?? t.LastLatencyMs);
+        const latText = lat !== null && lat !== undefined ? ` • ${lat} ms` : "";
+        const tagClass = hasRisk ? "tag-err" : (st.includes("Online") || String(st).includes("200") ? "tag-ok" : "tag-warn");
+
         return `
-          <div class="target-row">
+          <div class="target-row ${hasRisk ? "risk-row" : ""}">
             <div class="target-info">
-              <span class="target-name">${esc(t.label || t.name || "Alvo")}</span>
-              <span class="target-url">${esc(t.url || "")}</span>
+              <span class="target-name">${esc(t.label || t.Label || "Alvo")}</span>
+              <span class="target-url">${esc(t.url || t.Url || "")}${esc(latText)}</span>
+              ${hasRisk ? `<span class="target-risk">⚠️ ${esc(riskText)}</span>` : ""}
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <span class="${ok ? "tag-ok" : "tag-warn"}">${esc(st)}</span>
-              <button class="btn-outline" type="button" onclick="checkTarget('${escAttr(t.id || t.Id || "")}', this)">Verificar</button>
-              <button class="btn-outline" type="button" onclick="removeTarget('${escAttr(t.id || t.Id || "")}', this)">Remover</button>
+              <span class="${tagClass}">${esc(st)}</span>
+              <a class="btn-outline" href="${escAttr(t.url || t.Url || "#")}" target="_blank" rel="noopener noreferrer" onclick="openAndCheck('${escAttr(id)}')">Abrir</a>
+              <button class="btn-outline" type="button" onclick="checkTarget('${escAttr(id)}', this)">Verificar</button>
+              <button class="btn-outline" type="button" onclick="removeTarget('${escAttr(id)}', this)">Remover</button>
             </div>
           </div>
         `;
       }).join("");
+    }
+
+    function openAndCheck(id) {
+      if (id && state.sessionKey) {
+        setTimeout(() => checkTarget(id, null), 1200);
+      }
     }
 
     async function loadTargets() {
@@ -933,7 +1130,7 @@
         return;
       }
 
-      fb.textContent = "Adicionando...";
+      fb.textContent = "Adicionando e verificando alvo...";
       fb.className = "feedback";
       try {
         const r = await fetch("/api/v1/monitors", {
@@ -952,7 +1149,12 @@
         document.getElementById("targetLabel").value = "";
         fb.textContent = "Alvo adicionado com sucesso.";
         fb.className = "feedback ok";
+
         await loadTargets();
+        const createdId = d.id || d.Id;
+        if (createdId) {
+          await checkTarget(createdId, null);
+        }
         await loadHistory();
       } catch (err) {
         fb.textContent = err.message;
@@ -960,14 +1162,16 @@
       }
     }
 
-    async function checkTarget(id, btnEl) {
+    async function checkTarget(id, btnEl, silent = false) {
       const fb = document.getElementById("targetFeedback");
       if (!id) return;
 
       if (!state.sessionKey) {
-        fb.textContent = "Entre na sua conta para verificar os alvos.";
-        fb.className = "feedback err";
-        openAuth("login");
+        if (!silent) {
+          fb.textContent = "Entre na sua conta para verificar os alvos.";
+          fb.className = "feedback err";
+          openAuth("login");
+        }
         return;
       }
 
@@ -976,8 +1180,10 @@
         btnEl.disabled = true;
         btnEl.textContent = "Verificando...";
       }
-      fb.textContent = "Executando verificação do alvo...";
-      fb.className = "feedback";
+      if (!silent) {
+        fb.textContent = "Executando verificação do alvo...";
+        fb.className = "feedback";
+      }
 
       try {
         const encId = encodeURIComponent(id);
@@ -999,15 +1205,23 @@
         }
 
         state.pulseCount += 1;
-        const statusMsg = data.status || data.lastStatus || "Concluída";
-        fb.textContent = `Verificação concluída: ${statusMsg}.`;
-        fb.className = "feedback ok";
+        if (!silent) {
+          if (data.hasRisk) {
+            fb.textContent = `⚠️ Risco detectado: ${data.riskSummary || data.status}`;
+            fb.className = "feedback err";
+          } else {
+            fb.textContent = `Verificação concluída: ${data.status || "Online"} (${data.latencyMs ?? 0} ms).`;
+            fb.className = "feedback ok";
+          }
+        }
 
         await loadTargets();
-        await loadHistory();
+        if (!silent) await loadHistory();
       } catch (err) {
-        fb.textContent = err.message || "Não foi possível verificar o alvo.";
-        fb.className = "feedback err";
+        if (!silent) {
+          fb.textContent = err.message || "Não foi possível verificar o alvo.";
+          fb.className = "feedback err";
+        }
       } finally {
         if (btnEl) {
           btnEl.disabled = false;
@@ -1080,16 +1294,28 @@
           return;
         }
         box.innerHTML = items.map(h => `
-          <div class="target-row">
+          <div class="target-row ${h.hasRisk ? "risk-row" : ""}">
             <div class="target-info">
               <span class="target-name">${esc(h.label || h.url || "Verificação")}</span>
-              <span class="target-url">${esc(h.url || "")} — ${esc(h.status || "")}</span>
+              <span class="target-url">${esc(h.url || "")} — ${esc(h.status || "")} (${esc(String(h.latencyMs ?? 0))} ms)</span>
+              ${h.hasRisk ? `<span class="target-risk">⚠️ ${esc(h.riskSummary || "Risco detectado")}</span>` : ""}
             </div>
-            <span class="target-url">${esc(h.checkedAt || h.timestamp || "")}</span>
+            <span class="target-url">${esc(h.checkedAtUtc || h.checkedAt || "")}</span>
           </div>
         `).join("");
       } catch {
         box.innerHTML = '<p class="empty-msg">Não foi possível carregar o histórico.</p>';
+      }
+    }
+
+    async function runContinuousMonitorCycle() {
+      await loadDevices();
+      if (!state.sessionKey || !state.targets.length) return;
+      for (const t of state.targets) {
+        const id = t.id || t.Id;
+        if (id) {
+          await checkTarget(id, null, true);
+        }
       }
     }
 
@@ -1104,7 +1330,7 @@
     }
 
     function esc(s) {
-      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
     function escAttr(s) {
       return esc(s).replace(/'/g, "&#39;");
@@ -1113,10 +1339,10 @@
     updateAuthBar();
     updateCharts();
     pingHealth();
+    loadDevices();
     if (state.sessionKey) loadTargets();
+
+    setInterval(runContinuousMonitorCycle, 30000);
   </script>
 </body>
 </html>
-
-
-
