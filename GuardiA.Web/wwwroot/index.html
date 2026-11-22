@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GuardiA — Web</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: #070b14; color: #f1f5f9; min-height: 100vh; }
+    header { background: #0f172a; border-bottom: 1px solid #1e293b; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .brand { font-weight: 800; font-size: 1.2rem; }
+    .nav { display: flex; gap: 8px; }
+    .nav button, .account-btn { padding: 8px 14px; border-radius: 9px; border: 1px solid #334155; background: #162033; color: #f1f5f9; font-weight: 600; cursor: pointer; }
+    .nav button.active, .account-btn { border-color: #3b82f6; background: rgba(37, 99, 235, 0.25); }
+    .pill { padding: 6px 12px; border-radius: 999px; background: #162033; border: 1px solid #1e293b; font-size: 0.82rem; color: #94a3b8; }
+    main { max-width: 1100px; margin: 24px auto; padding: 0 20px 40px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+    .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 14px; padding: 20px; }
+    h2 { margin: 0 0 6px; font-size: 1.1rem; }
+    .muted { color: #94a3b8; font-size: 0.86rem; margin: 0 0 14px; }
+    .choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .choice { padding: 11px; border-radius: 9px; border: 1px solid #334155; background: #070b14; color: #cbd5e1; font-weight: 700; cursor: pointer; }
+    .choice.active { border-color: #3b82f6; background: rgba(37, 99, 235, 0.22); color: #fff; }
+    label { display: block; margin-top: 10px; font-size: 0.86rem; color: #cbd5e1; }
+    input { width: 100%; margin-top: 5px; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #070b14; color: #fff; }
+    button.primary { margin-top: 14px; width: 100%; padding: 11px; border: 0; border-radius: 9px; background: #2563eb; color: #fff; font-weight: 700; cursor: pointer; }
+    .msg { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: #070b14; border: 1px solid #1e293b; font-size: 0.85rem; color: #cbd5e1; }
+    .list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow: auto; }
+    .item { background: #070b14; border: 1px solid #1e293b; border-radius: 9px; padding: 10px 12px; font-size: 0.85rem; }
+    .view { display: none; }
+    .view.active { display: block; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">GuardiA</div>
+    <div class="nav">
+      <button id="tabMon" class="active" type="button" onclick="setView('mon')">Monitoramento</button>
+      <button id="tabHist" type="button" onclick="setView('hist')">Histórico</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span id="healthBadge" class="pill">Verificando...</span>
+      <button id="accBtn" class="account-btn" type="button" onclick="focusAuth('login')">Cadastro / Login</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="viewMon" class="view active">
+      <div class="grid">
+        <section class="card">
+          <h2>Cadastro / Login</h2>
+          <p class="muted">Entre na sua conta para gerenciar alvos e consultar o histórico.</p>
+          <div class="choice-row">
+            <button id="btnReg" class="choice active" type="button" onclick="switchMode('register')">Cadastro</button>
+            <button id="btnLog" class="choice" type="button" onclick="switchMode('login')">Login</button>
+          </div>
+          <form id="regForm">
+            <label for="rName">Nome</label>
+            <input id="rName" type="text" required placeholder="Seu nome" />
+            <label for="rEmail">E-mail</label>
+            <input id="rEmail" type="email" required placeholder="voce@exemplo.com" />
+            <label for="rPass">Senha (mín. 6 caracteres)</label>
+            <input id="rPass" type="password" minlength="6" required placeholder="••••••••" />
+            <button class="primary" type="submit">Cadastrar</button>
+          </form>
+          <form id="logForm" style="display:none;">
+            <label for="lEmail">E-mail</label>
+            <input id="lEmail" type="email" required placeholder="voce@exemplo.com" />
+            <label for="lPass">Senha</label>
+            <input id="lPass" type="password" required placeholder="••••••••" />
+            <button class="primary" type="submit">Entrar</button>
+          </form>
+          <div id="authMsg" class="msg">Use Cadastro para criar sua conta ou Login para entrar.</div>
+        </section>
+
+        <section class="card">
+          <h2>Monitoramento</h2>
+          <p class="muted">Adicione URLs para acompanhar o status e gravar no histórico.</p>
+          <form id="monForm">
+            <label for="mUrl">URL</label>
+            <input id="mUrl" type="text" required placeholder="https://exemplo.com" />
+            <label for="mLabel">Identificação (opcional)</label>
+            <input id="mLabel" type="text" placeholder="Ex.: Portal Principal" />
+            <button class="primary" type="submit">Adicionar Alvo</button>
+          </form>
+          <div id="monList" class="list"><div class="item">Faça login para gerenciar seus alvos.</div></div>
+        </section>
+      </div>
+    </div>
+
+    <div id="viewHist" class="view">
+      <div class="grid">
+        <section class="card">
+          <h2>Histórico de Monitoramento</h2>
+          <p class="muted">Alvos registrados na sua conta.</p>
+          <div id="histMonitors" class="list"><div class="item">Faça login para ver o histórico.</div></div>
+        </section>
+        <section class="card">
+          <h2>Histórico de Telemetria (Agente)</h2>
+          <p class="muted">Dispositivos e métricas reportadas.</p>
+          <div id="histDevices" class="list"><div class="item">Carregando...</div></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SESSION_KEY = "guardia_session_key";
+    const SESSION_EMAIL = "guardia_session_email";
+
+    const getSessionKey = () => (localStorage.getItem(SESSION_KEY) || "").trim();
+    const getSessionEmail = () => (localStorage.getItem(SESSION_EMAIL) || "").trim();
+
+    function syncHeader() {
+      const email = getSessionEmail();
+      document.getElementById("accBtn").textContent = (getSessionKey() && email) ? email : "Cadastro / Login";
+      if (email) document.getElementById("lEmail").value = email;
+    }
+
+    function setView(view) {
+      const isMon = view === "mon";
+      document.getElementById("tabMon").classList.toggle("active", isMon);
+      document.getElementById("tabHist").classList.toggle("active", !isMon);
+      document.getElementById("viewMon").classList.toggle("active", isMon);
+      document.getElementById("viewHist").classList.toggle("active", !isMon);
+      loadMonitors();
+      loadDevices();
+    }
+
+    function switchMode(mode) {
+      const reg = mode === "register";
+      document.getElementById("btnReg").classList.toggle("active", reg);
+      document.getElementById("btnLog").classList.toggle("active", !reg);
+      document.getElementById("regForm").style.display = reg ? "block" : "none";
+      document.getElementById("logForm").style.display = reg ? "none" : "block";
+    }
+
+    function focusAuth(mode) { setView("mon"); switchMode(mode); }
+
+    fetch("/health", { cache: "no-store" })
+      .then(r => { document.getElementById("healthBadge").textContent = r.ok ? "Online" : "Aviso"; })
+      .catch(() => { document.getElementById("healthBadge").textContent = "Offline"; });
+
+    document.getElementById("regForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("authMsg");
+      const res = await fetch("/api/v1/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: document.getElementById("rName").value.trim(),
+          email: document.getElementById("rEmail").value.trim(),
+          password: document.getElementById("rPass").value
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.sessionKey) {
+        localStorage.setItem(SESSION_KEY, data.sessionKey);
+        localStorage.setItem(SESSION_EMAIL, data.email);
+        syncHeader();
+        msg.textContent = `Conta criada e conectada: ${data.email}.`;
+        loadMonitors();
+      } else {
+        msg.textContent = data.error || "Não foi possível cadastrar.";
+      }
+    });
+
+    document.getElementById("logForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("authMsg");
+      const res = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: document.getElementById("lEmail").value.trim(),
+          password: document.getElementById("lPass").value
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.sessionKey) {
+        localStorage.setItem(SESSION_KEY, data.sessionKey);
+        localStorage.setItem(SESSION_EMAIL, data.email);
+        document.getElementById("lPass").value = "";
+        syncHeader();
+        msg.textContent = `Login realizado: ${data.name} (${data.email}).`;
+        loadMonitors();
+      } else {
+        msg.textContent = data.error || "E-mail ou senha inválidos.";
+      }
+    });
+
+    document.getElementById("monForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("authMsg");
+      const key = getSessionKey();
+      if (!key) {
+        msg.textContent = "Faça cadastro ou login primeiro para adicionar alvos.";
+        return;
+      }
+      const res = await fetch("/api/v1/monitors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Session-Key": key },
+        body: JSON.stringify({
+          url: document.getElementById("mUrl").value.trim(),
+          label: document.getElementById("mLabel").value.trim()
+        })
+      });
+      if (res.ok) {
+        document.getElementById("mUrl").value = "";
+        document.getElementById("mLabel").value = "";
+        loadMonitors();
+      } else {
+        msg.textContent = "Sessão inválida ou erro ao salvar alvo.";
+      }
+    });
+
+    async function loadMonitors() {
+      const monBox = document.getElementById("monList");
+      const histBox = document.getElementById("histMonitors");
+      const key = getSessionKey();
+      if (!key) {
+        monBox.innerHTML = `<div class="item">Faça login para gerenciar seus alvos.</div>`;
+        histBox.innerHTML = `<div class="item">Faça login para ver o histórico.</div>`;
+        return;
+      }
+      const res = await fetch("/api/v1/monitors", { headers: { "X-Session-Key": key }, cache: "no-store" });
+      if (!res.ok) return;
+      const items = await res.json();
+      if (!items.length) {
+        monBox.innerHTML = `<div class="item">Nenhum alvo cadastrado ainda.</div>`;
+        histBox.innerHTML = `<div class="item">Nenhum registro no histórico ainda.</div>`;
+        return;
+      }
+      monBox.innerHTML = items.map(i => `<div class="item"><strong>${i.url}</strong> — ${i.label} (${i.status})</div>`).join("");
+      histBox.innerHTML = items.map(i => `<div class="item"><strong>${i.url}</strong> — ${i.label}<br><span style="color:#94a3b8;">Criado em ${new Date(i.createdAtUtc).toLocaleString("pt-BR")}</span></div>`).join("");
+    }
+
+    async function loadDevices() {
+      const box = document.getElementById("histDevices");
+      try {
+        const res = await fetch("/api/v1/agent/devices", { cache: "no-store" });
+        const list = await res.json();
+        if (!Array.isArray(list) || !list.length) {
+          box.innerHTML = `<div class="item">Nenhuma telemetria registrada ainda.</div>`;
+          return;
+        }
+        box.innerHTML = list.map(d => `<div class="item"><strong>${d.machineName}</strong> (${d.clientId})<br><span style="color:#94a3b8;">CPU ${d.cpuLoadPercent}% • Memória ${d.memoryUsedPercent}% • TCP ${d.activeTcpConnectionsCount}</span></div>`).join("");
+      } catch {
+        box.innerHTML = `<div class="item">Erro ao carregar telemetria.</div>`;
+      }
+    }
+
+    syncHeader();
+    loadMonitors();
+    loadDevices();
+    setInterval(loadDevices, 5000);
+  </script>
+</body>
+</html>

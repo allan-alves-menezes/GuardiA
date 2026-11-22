@@ -27,3 +27,9 @@ $RECYCLE.BIN/
 # Build/publish artifacts
 publish/
 
+
+# Dados locais separados de clientes e credenciais
+GuardiA.API/Storage/
+
+# Dados locais do GuardiA.Web
+GuardiA.Web/Data/

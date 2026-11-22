@@ -1,0 +1,166 @@
+@page "/consulta"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+
+<PageTitle>Consulta Gratuita - GuardiA</PageTitle>
+
+<div class="container py-4 text-light">
+    <div class="mb-4">
+        <span class="badge bg-info text-dark mb-2">Ferramenta Gratuita</span>
+        <h3 class="fw-bold text-white mb-1">Central de Consulta Rápida GuardiA</h3>
+        <p class="text-secondary mb-0">
+            Verifique links com redirecionamento, exposição de senhas em vazamentos e risco de spoofing em cabeçalhos de e-mail.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <!-- 1. URL -->
+        <div class="col-lg-4">
+            <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-info">1. Checar URL / Redirecionamento</h5>
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">URL do site</label>
+                        <input type="text" class="form-control bg-black text-light border-secondary"
+                               @bind="_urlInput" placeholder="https://exemplo.com" />
+                    </div>
+                    <button class="btn btn-info w-100 fw-semibold" @onclick="ChecarUrlAsync" disabled="@_loadingUrl">
+                        @(_loadingUrl ? "Consultando..." : "Verificar URL")
+                    </button>
+
+                    @if (!string.IsNullOrWhiteSpace(_resultadoUrl))
+                    {
+                        <pre class="mt-3 p-2 bg-black border border-secondary rounded small text-light mb-0">@_resultadoUrl</pre>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Senha (k-Anonymity) -->
+        <div class="col-lg-4">
+            <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-info">2. Checar Senha Vazada</h5>
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">Senha para teste</label>
+                        <input type="password" class="form-control bg-black text-light border-secondary"
+                               @bind="_senhaInput" placeholder="Digite a senha" />
+                        <div class="form-text text-secondary">A senha gera hash SHA-1 e consulta apenas o prefixo (k-Anonymity).</div>
+                    </div>
+                    <button class="btn btn-info w-100 fw-semibold" @onclick="ChecarSenhaAsync" disabled="@_loadingSenha">
+                        @(_loadingSenha ? "Verificando..." : "Verificar Vazamento")
+                    </button>
+
+                    @if (!string.IsNullOrWhiteSpace(_resultadoSenha))
+                    {
+                        <pre class="mt-3 p-2 bg-black border border-secondary rounded small text-light mb-0">@_resultadoSenha</pre>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Cabeçalho de E-mail -->
+        <div class="col-lg-4">
+            <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-info">3. Analisar Cabeçalho de E-mail</h5>
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">Cabeçalho (From, Return-Path, SPF, DKIM, DMARC)</label>
+                        <textarea rows="4" class="form-control bg-black text-light border-secondary"
+                                  @bind="_headerInput" placeholder="Cole o cabeçalho do e-mail aqui..."></textarea>
+                    </div>
+                    <button class="btn btn-info w-100 fw-semibold" @onclick="AnalisarEmailAsync" disabled="@_loadingEmail">
+                        @(_loadingEmail ? "Analisando..." : "Analisar E-mail")
+                    </button>
+
+                    @if (!string.IsNullOrWhiteSpace(_resultadoEmail))
+                    {
+                        <pre class="mt-3 p-2 bg-black border border-secondary rounded small text-light mb-0">@_resultadoEmail</pre>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _urlInput = string.Empty;
+    private string _senhaInput = string.Empty;
+    private string _headerInput = string.Empty;
+
+    private string? _resultadoUrl;
+    private string? _resultadoSenha;
+    private string? _resultadoEmail;
+
+    private bool _loadingUrl;
+    private bool _loadingSenha;
+    private bool _loadingEmail;
+
+    private HttpClient CriarClienteApi() => HttpClientFactory.CreateClient("GuardiaApi");
+
+    private async Task ChecarUrlAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_urlInput)) return;
+        _loadingUrl = true;
+        _resultadoUrl = null;
+
+        try
+        {
+            var client = CriarClienteApi();
+            var resp = await client.PostAsJsonAsync("/api/v1/scanner/url", new { Url = _urlInput.Trim() });
+            _resultadoUrl = await resp.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _resultadoUrl = $"Erro na consulta: {ex.Message}";
+        }
+        finally
+        {
+            _loadingUrl = false;
+        }
+    }
+
+    private async Task ChecarSenhaAsync()
+    {
+        if (string.IsNullOrEmpty(_senhaInput)) return;
+        _loadingSenha = true;
+        _resultadoSenha = null;
+
+        try
+        {
+            var client = CriarClienteApi();
+            var resp = await client.PostAsJsonAsync("/api/v1/seguranca/verificar-senha", new { Senha = _senhaInput });
+            _resultadoSenha = await resp.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _resultadoSenha = $"Erro na consulta: {ex.Message}";
+        }
+        finally
+        {
+            _loadingSenha = false;
+        }
+    }
+
+    private async Task AnalisarEmailAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_headerInput)) return;
+        _loadingEmail = true;
+        _resultadoEmail = null;
+
+        try
+        {
+            var client = CriarClienteApi();
+            var resp = await client.PostAsJsonAsync("/api/v1/seguranca/analisar-cabecalho-de-e-mail", new { Cabecalho = _headerInput });
+            _resultadoEmail = await resp.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _resultadoEmail = $"Erro na análise: {ex.Message}";
+        }
+        finally
+        {
+            _loadingEmail = false;
+        }
+    }
+}

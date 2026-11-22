@@ -1,0 +1,133 @@
+@page "/vulnerabilidades"
+@inject HttpClient Http
+
+<div class="container-fluid">
+    <div class="mb-4">
+        <h4 class="fw-bold text-white mb-1">
+            <i class="bi bi-bug text-danger me-2"></i>Análise de Vulnerabilidades e Exposição
+        </h4>
+        <p class="text-secondary small mb-0">Auditoria de credenciais vazadas e detecção de domínios maliciosos (Typosquatting).</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Ferramenta 1: Auditoria de Vazamento de Senhas (k-Anonymity) -->
+        <div class="col-lg-6">
+            <div class="cyber-card p-4 h-100">
+                <h6 class="cyber-card-title mb-3">
+                    <i class="bi bi-key text-warning me-2"></i>Auditoria de Credenciais (Have I Been Pwned)
+                </h6>
+                <p class="text-secondary small">Verifica via hash SHA-1 parcial (k-Anonymity) se uma senha já foi exposta em vazamentos públicos.</p>
+                
+                <div class="input-group mb-3">
+                    <input type="password" class="form-control cyber-input" @bind="senhaTeste" placeholder="Digite a senha para auditar..." />
+                    <button class="btn btn-warning fw-bold text-dark" @onclick="VerificarSenha" disabled="@verificandoSenha">
+                        @(verificandoSenha ? "Consultando..." : "Auditar")
+                    </button>
+                </div>
+
+                @if (resultadoSenha != null)
+                {
+                    <div class="alert @(resultadoSenha.ExpostaEmVazamento ? "bg-danger bg-opacity-25 border-danger text-danger" : "bg-success bg-opacity-25 border-success text-success") small mb-0">
+                        <div class="fw-bold mb-1">@resultadoSenha.Recomendacao</div>
+                        <div>Ocorrências encontradas em bases vazadas: <strong>@resultadoSenha.TotalVazamentos</strong></div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Ferramenta 2: Varredura de Typosquatting -->
+        <div class="col-lg-6">
+            <div class="cyber-card p-4 h-100">
+                <h6 class="cyber-card-title mb-3">
+                    <i class="bi bi-globe2 text-info me-2"></i>Detector de Typosquatting (Domínios Clones)
+                </h6>
+                <p class="text-secondary small">Gera variações maliciosas de um domínio legítimo e cadastra automaticamente no robô de monitoramento.</p>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control form-control-sm cyber-input" @bind="dominioBase" placeholder="Ex: suaempresa.com.br" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control form-control-sm cyber-input" @bind="marcaAlvo" placeholder="Nome da Marca" />
+                    </div>
+                </div>
+                <button class="btn btn-info btn-sm fw-bold text-dark mb-3" @onclick="GerarTyposquatting" disabled="@gerandoTypo">
+                    <i class="bi bi-cpu me-1"></i> @(gerandoTypo ? "Gerando..." : "Mapear Variações")
+                </button>
+
+                @if (resultadoTypo != null)
+                {
+                    <div class="p-3 rounded-3 bg-dark border border-info border-opacity-25 small">
+                        <div class="text-info fw-semibold mb-1">
+                            @resultadoTypo.TotalGerado variações geradas (@resultadoTypo.TotalCadastradosNoRobo novas enviadas ao radar)
+                        </div>
+                        <div class="text-secondary text-truncate">
+                            Exemplos: @string.Join(", ", resultadoTypo.PossiveisAlvosMaliciosos.Take(5))...
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string senhaTeste = string.Empty;
+    private bool verificandoSenha = false;
+    private SenhaVazamentoDto? resultadoSenha;
+
+    private string dominioBase = string.Empty;
+    private string marcaAlvo = string.Empty;
+    private bool gerandoTypo = false;
+    private TypoResultadoDto? resultadoTypo;
+
+    private async Task VerificarSenha()
+    {
+        if (string.IsNullOrWhiteSpace(senhaTeste)) return;
+        verificandoSenha = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync("http://localhost:5005/api/v1/seguranca/verificar-senha", new { Password = senhaTeste });
+            if (response.IsSuccessStatusCode)
+            {
+                resultadoSenha = await response.Content.ReadFromJsonAsync<SenhaVazamentoDto>();
+            }
+        }
+        finally
+        {
+            verificandoSenha = false;
+        }
+    }
+
+    private async Task GerarTyposquatting()
+    {
+        if (string.IsNullOrWhiteSpace(dominioBase)) return;
+        gerandoTypo = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync("http://localhost:5005/api/v1/scanner/typosquatting", new { Domain = dominioBase, TargetBrand = marcaAlvo });
+            if (response.IsSuccessStatusCode)
+            {
+                resultadoTypo = await response.Content.ReadFromJsonAsync<TypoResultadoDto>();
+            }
+        }
+        finally
+        {
+            gerandoTypo = false;
+        }
+    }
+
+    private class SenhaVazamentoDto
+    {
+        public bool ExpostaEmVazamento { get; set; }
+        public int TotalVazamentos { get; set; }
+        public string Recomendacao { get; set; } = "";
+    }
+
+    private class TypoResultadoDto
+    {
+        public int TotalGerado { get; set; }
+        public int TotalCadastradosNoRobo { get; set; }
+        public List<string> PossiveisAlvosMaliciosos { get; set; } = new();
+    }
+}

@@ -1,0 +1,120 @@
+@page "/alertas"
+@rendermode InteractiveServer
+
+<PageTitle>Alertas - GuardiA</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h4 class="mb-1 text-white fw-semibold">Central de Alertas</h4>
+        <p class="text-secondary small mb-0">Triagem de eventos e anomalias detectadas pelo Sentinel</p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-3 align-items-end">
+        <div>
+            <label for="filtro-severidade" class="form-label small text-secondary mb-1">Severidade</label>
+            <select id="filtro-severidade"
+                    class="form-select form-select-sm bg-dark text-light border-secondary"
+                    @bind="_selectedSeverity">
+                <option value="Todas">Todas</option>
+                <option value="Crítico">Crítico</option>
+                <option value="Alto">Alto</option>
+                <option value="Médio">Médio</option>
+                <option value="Baixo">Baixo</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="filtro-status" class="form-label small text-secondary mb-1">Status</label>
+            <select id="filtro-status"
+                    class="form-select form-select-sm bg-dark text-light border-secondary"
+                    @bind="_selectedStatus">
+                <option value="Todos">Todos</option>
+                <option value="Abertos">Abertos</option>
+                <option value="Resolvidos">Resolvidos</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+@if (!FilteredAlerts.Any())
+{
+    <div class="alert alert-secondary bg-dark text-secondary border-secondary">
+        Nenhum alerta encontrado para os filtros selecionados.
+    </div>
+}
+else
+{
+    <div class="list-group gap-2">
+        @foreach (var alerta in FilteredAlerts)
+        {
+            <div class="list-group-item bg-dark text-light border-secondary rounded-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <span class="badge @GetSeverityBadgeClass(alerta.Severity) me-2">@alerta.Severity</span>
+                    <strong>@alerta.Title</strong>
+                    <div class="small text-secondary mt-1">@alerta.Description</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge @(alerta.Resolved ? "bg-success" : "bg-danger")">
+                        @(alerta.Resolved ? "Resolvido" : "Aberto")
+                    </span>
+                    @if (!alerta.Resolved)
+                    {
+                        <button type="button"
+                                class="btn btn-sm btn-outline-success"
+                                @onclick="() => MarkAsResolved(alerta.Id)"
+                                aria-label="Marcar alerta @alerta.Title como resolvido">
+                            Resolver
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<AlertItem>? _alerts;
+    private string _selectedSeverity = "Todas";
+    private string _selectedStatus = "Todos";
+
+    protected override void OnInitialized()
+    {
+        // Dados iniciais de exemplo — substitua pela chamada à sua GuardiA.API quando o endpoint estiver pronto
+        _alerts ??= new List<AlertItem>();
+    }
+
+    private IEnumerable<AlertItem> FilteredAlerts
+    {
+        get
+        {
+            var safeList = _alerts ?? Enumerable.Empty<AlertItem>();
+
+            return safeList.Where(a =>
+                (_selectedSeverity == "Todas" || string.Equals(a.Severity, _selectedSeverity, StringComparison.OrdinalIgnoreCase)) &&
+                (_selectedStatus == "Todos" ||
+                 (_selectedStatus == "Abertos" && !a.Resolved) ||
+                 (_selectedStatus == "Resolvidos" && a.Resolved)));
+        }
+    }
+
+    private void MarkAsResolved(int id)
+    {
+        if (_alerts is null) return;
+
+        var index = _alerts.FindIndex(a => a.Id == id);
+        if (index >= 0)
+        {
+            _alerts[index] = _alerts[index] with { Resolved = true };
+        }
+    }
+
+    private static string GetSeverityBadgeClass(string? severity) => severity?.ToLowerInvariant() switch
+    {
+        "crítico" or "critico" => "bg-danger",
+        "alto" => "bg-warning text-dark",
+        "médio" or "medio" => "bg-info text-dark",
+        _ => "bg-secondary"
+    };
+
+    private sealed record AlertItem(int Id, string Title, string Description, string Severity, bool Resolved);
+}

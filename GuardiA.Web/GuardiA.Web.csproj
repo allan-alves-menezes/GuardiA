@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Admin\**" />
+    <Compile Remove="API\**" />
+    <Compile Remove="Agent\**" />
+    <Content Remove="Admin\**" />
+    <Content Remove="API\**" />
+    <Content Remove="Agent\**" />
+    <EmbeddedResource Remove="Admin\**" />
+    <EmbeddedResource Remove="API\**" />
+    <EmbeddedResource Remove="Agent\**" />
+    <None Remove="Admin\**" />
+    <None Remove="API\**" />
+    <None Remove="Agent\**" />
+  </ItemGroup>
+</Project>

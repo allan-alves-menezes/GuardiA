@@ -1,0 +1,299 @@
+@page "/targets-management"
+@using Microsoft.AspNetCore.Components.Forms
+@inject TargetService TargetService
+@inject HttpClient Http
+
+@if (!string.IsNullOrEmpty(mensagemFeedback))
+{
+    <div class="alert alert-info bg-dark text-info border-info alert-dismissible fade show mb-4" role="alert">
+        <i class="bi bi-terminal me-2"></i>@mensagemFeedback
+        <button type="button" class="btn-close btn-close-white" @onclick="() => mensagemFeedback = string.Empty"></button>
+    </div>
+}
+
+<!-- Linha Superior: Gráficos e Métricas -->
+<div class="row g-4 mb-4">
+    <!-- Card 1: Distribuição de Status HTTP -->
+    <div class="col-lg-4">
+        <div class="cyber-card h-100 p-4">
+            <h6 class="cyber-card-title mb-3">
+                <i class="bi bi-pie-chart text-info me-2"></i>Distribuição de Status HTTP dos Alvos
+            </h6>
+            <div class="d-flex align-items-center justify-content-around my-3">
+                <!-- Gráfico Donut em SVG dinâmico -->
+                <svg width="130" height="130" viewBox="0 0 42 42" class="donut">
+                    <circle class="donut-hole" cx="21" cy="21" r="15.91549430918954" fill="#111827"></circle>
+                    <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#1e293b" stroke-width="5"></circle>
+                    <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#06b6d4" stroke-width="5" stroke-dasharray="@PercentualOk @(100 - PercentualOk)" stroke-dashoffset="25"></circle>
+                    <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" fill="#f8fafc" font-size="8" font-weight="bold">@PercentualOk%</text>
+                </svg>
+
+                <ul class="list-unstyled small mb-0 gap-2 d-flex flex-column">
+                    <li><span class="badge bg-info me-2">&nbsp;</span> <strong>@CountOk</strong> OK (200)</li>
+                    <li><span class="badge bg-warning me-2">&nbsp;</span> <strong>@CountRedirect</strong> Redirect (3xx)</li>
+                    <li><span class="badge bg-danger me-2">&nbsp;</span> <strong>@CountError</strong> Falha/Erro</li>
+                    <li><span class="badge bg-secondary me-2">&nbsp;</span> <strong>@CountPending</strong> Pendentes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Linha do Tempo de Alertas -->
+    <div class="col-lg-4">
+        <div class="cyber-card h-100 p-4">
+            <h6 class="cyber-card-title mb-3">
+                <i class="bi bi-activity text-info me-2"></i>Linha do Tempo de Alertas de Segurança
+            </h6>
+            <!-- Gráfico de Linha SVG Estilizado -->
+            <svg viewBox="0 0 300 70" class="w-100 mb-3" style="height: 65px;">
+                <polyline fill="none" stroke="#38bdf8" stroke-width="2.5"
+                          points="0,55 40,45 80,60 120,25 160,50 200,15 240,40 280,10 300,30" />
+                <circle cx="200" cy="15" r="4" fill="#ef4444" />
+                <circle cx="280" cy="10" r="4" fill="#38bdf8" />
+            </svg>
+            <div class="d-flex flex-column gap-2 small">
+                <div class="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-1">
+                    <span class="text-light text-truncate" style="max-width: 75%;">Varredura autônoma concluída</span>
+                    <span class="badge bg-info bg-opacity-25 text-info">Info</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-1">
+                    <span class="text-light text-truncate" style="max-width: 75%;">Verificação de certificados SSL</span>
+                    <span class="badge bg-warning bg-opacity-25 text-warning">Aviso</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-light text-truncate" style="max-width: 75%;">Filtro de IP Admin ativo</span>
+                    <span class="badge bg-danger bg-opacity-25 text-danger">Crítico</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Cadastro Rápido de Novo Alvo -->
+    <div class="col-lg-4">
+        <div class="cyber-card h-100 p-4">
+            <h6 class="cyber-card-title mb-3">
+                <i class="bi bi-plus-square text-info me-2"></i>Adicionar Novo Alvo ao Radar
+            </h6>
+            <EditForm Model="@newTarget" OnValidSubmit="HandleAddTarget" FormName="addTargetForm">
+                <DataAnnotationsValidator />
+                <div class="mb-2">
+                    <label class="form-label small text-secondary mb-1">URL / Domínio</label>
+                    <InputText class="form-control form-control-sm cyber-input" @bind-Value="newTarget.TargetUrl" placeholder="https://seusistema.com.br" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small text-secondary mb-1">Marca / Identificador</label>
+                    <InputText class="form-control form-control-sm cyber-input" @bind-Value="newTarget.TargetBrand" placeholder="Ex: Portal Corporativo" />
+                </div>
+                <button type="submit" class="btn btn-info btn-sm w-100 fw-bold text-dark">
+                    <i class="bi bi-radar me-1"></i> Iniciar Monitoramento
+                </button>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Linha Inferior: Tabela de Monitoramento de Alvos Ativos -->
+<div class="cyber-card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="cyber-card-title mb-0">
+            <i class="bi bi-hdd-network text-info me-2"></i>Monitoramento de Alvos Ativos
+        </h6>
+        <button class="btn btn-sm btn-outline-info" @onclick="LoadTargets">
+            <i class="bi bi-arrow-clockwise me-1"></i> Sincronizar
+        </button>
+    </div>
+
+    @if (targets == null)
+    {
+        <div class="text-center py-4">
+            <div class="spinner-border text-info" role="status"></div>
+            <p class="text-secondary small mt-2">Carregando telemetria dos alvos...</p>
+        </div>
+    }
+    else if (!targets.Any())
+    {
+        <div class="text-center py-4 text-secondary">
+            <i class="bi bi-shield-x fs-2 d-block mb-2"></i>
+            Nenhum alvo registrado no banco SQLite.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0 cyber-table">
+                <thead>
+                    <tr class="text-secondary small text-uppercase">
+                        <th>ID</th>
+                        <th>Alvo / URL</th>
+                        <th>Marca</th>
+                        <th>Status HTTP</th>
+                        <th>SSL</th>
+                        <th>Última Checagem</th>
+                        <th>Estado</th>
+                        <th class="text-end">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var target in targets)
+                    {
+                        <tr>
+                            <td class="text-secondary">#@target.Id</td>
+                            <td>
+                                <a href="@target.Url" target="_blank" class="text-info text-decoration-none fw-medium">
+                                    @target.Url <i class="bi bi-box-arrow-up-right small ms-1"></i>
+                                </a>
+                            </td>
+                            <td class="text-light">@target.Brand</td>
+                            <td>
+                                <span class="badge @GetStatusBadge(target.StatusCode) px-2 py-1">
+                                    @(target.StatusCode > 0 ? $"{target.StatusCode} {(target.StatusCode == 200 ? "OK" : "")}" : "PENDENTE")
+                                </span>
+                            </td>
+                            <td class="text-success small">
+                                <i class="bi bi-lock-fill me-1"></i>@target.SslDays dias
+                            </td>
+                            <td class="text-secondary small">@target.LastCheckedAt</td>
+                            <td>
+                                <span class="text-@(target.Active ? "success" : "danger") small fw-semibold">
+                                    ● @(target.Active ? "Ativo" : "Inativo")
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-info" @onclick="() => DispararScanner(target.Id)" disabled="@isScanning">
+                                    @if (isScanning)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                        <span>Varrendo...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-radar me-1"></i>
+                                        <span>Escanear</span>
+                                    }
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    .cyber-card {
+        background-color: #111827;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(56, 189, 248, 0.03);
+    }
+
+    .cyber-card-title {
+        color: #f1f5f9;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .cyber-input {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        color: #f8fafc;
+    }
+
+    .cyber-input:focus {
+        background-color: #1e293b;
+        border-color: #38bdf8;
+        color: #ffffff;
+        box-shadow: 0 0 0 0.2rem rgba(56, 189, 248, 0.25);
+    }
+
+    .cyber-table {
+        --bs-table-bg: transparent;
+        --bs-table-hover-bg: rgba(56, 189, 248, 0.08);
+        border-color: rgba(148, 163, 184, 0.15);
+    }
+</style>
+
+@code {
+    private List<TargetDto>? targets;
+    private CreateTargetRequest newTarget = new();
+    private string mensagemFeedback = string.Empty;
+    private bool isScanning = false;
+
+    // Métricas calculadas dinamicamente para o gráfico de rosca
+    private int CountOk => targets?.Count(t => t.StatusCode == 200) ?? 0;
+    private int CountRedirect => targets?.Count(t => t.StatusCode >= 300 && t.StatusCode < 400) ?? 0;
+    private int CountError => targets?.Count(t => t.StatusCode >= 400) ?? 0;
+    private int CountPending => targets?.Count(t => t.StatusCode == 0) ?? 0;
+    private int PercentualOk => (targets != null && targets.Count > 0) ? (int)Math.Round((double)CountOk / targets.Count * 100) : 100;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTargets();
+    }
+
+    private async Task LoadTargets()
+    {
+        try
+        {
+            targets = await TargetService.GetTargetsAsync();
+        }
+        catch (Exception ex)
+        {
+            mensagemFeedback = $"Erro ao conectar com a API: {ex.Message}";
+            targets = new List<TargetDto>();
+        }
+    }
+
+    private async Task HandleAddTarget()
+    {
+        mensagemFeedback = "Registrando novo alvo...";
+        bool sucesso = await TargetService.AddTargetAsync(newTarget);
+
+        if (sucesso)
+        {
+            mensagemFeedback = "Alvo adicionado ao monitoramento!";
+            newTarget = new();
+            await LoadTargets();
+        }
+        else
+        {
+            mensagemFeedback = "Não foi possível cadastrar o alvo.";
+        }
+    }
+
+    private async Task DispararScanner(int id)
+    {
+        isScanning = true;
+        mensagemFeedback = $"Executando varredura no alvo #{id}...";
+        try
+        {
+            var response = await Http.PostAsync($"http://localhost:5005/api/v1/targets/{id}/scan", null);
+            if (response.IsSuccessStatusCode)
+            {
+                mensagemFeedback = $"Varredura do alvo #{id} finalizada com sucesso!";
+                await LoadTargets();
+            }
+            else
+            {
+                mensagemFeedback = "A API retornou um erro durante a varredura.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagemFeedback = $"Falha de conexão com a porta 5005: {ex.Message}";
+        }
+        finally
+        {
+            isScanning = false;
+        }
+    }
+
+    private string GetStatusBadge(int statusCode) => statusCode switch
+    {
+        200 => "bg-success bg-opacity-25 text-success border border-success border-opacity-50",
+        >= 300 and < 400 => "bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50",
+        >= 400 => "bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50",
+        _ => "bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-50"
+    };
+}
