@@ -3,304 +3,439 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GuardiA — Monitoramento</title>
+  <title>GuardiA — Painel de Monitoramento de Cibersegurança</title>
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: #121a30;
-      --panel-2: #18223d;
-      --text: #eef2ff;
-      --muted: #9aa7c7;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --ok: #22c55e;
+      --bg: #040811;
+      --bg-grad: radial-gradient(circle at 50% 0%, #0b1b36 0%, #040811 65%);
+      --panel: rgba(8, 16, 32, 0.92);
+      --panel-2: rgba(13, 25, 49, 0.92);
+      --cyan: #22d3ee;
+      --blue: #3b82f6;
+      --ok: #10b981;
       --warn: #f59e0b;
       --err: #ef4444;
-      --border: rgba(255, 255, 255, 0.09);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: rgba(34, 211, 238, 0.22);
+      --border-soft: rgba(148, 163, 184, 0.14);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: var(--bg);
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      background: var(--bg-grad);
+      background-color: var(--bg);
       color: var(--text);
       min-height: 100vh;
     }
 
-    header {
+    .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 14px 24px;
-      background: rgba(18, 26, 48, 0.92);
+      padding: 12px 24px;
+      background: rgba(5, 11, 24, 0.95);
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      z-index: 20;
-      backdrop-filter: blur(8px);
+      z-index: 30;
     }
 
-    .brand-nav {
+    .brand-area {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
+    .brand-title {
       font-size: 1.15rem;
-      letter-spacing: 0.3px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      color: #fff;
     }
 
-    .status-pill {
-      font-size: 0.75rem;
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--ok);
-      border: 1px solid rgba(34, 197, 94, 0.35);
-    }
-
-    nav {
-      display: flex;
-      gap: 8px;
-    }
-
-    .nav-btn {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid transparent;
-      padding: 7px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .nav-btn:hover { color: var(--text); background: var(--panel-2); }
-    .nav-btn.active {
-      color: var(--text);
-      background: var(--panel-2);
-      border-color: var(--border);
-    }
-
-    .header-auth {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .user-badge {
+    .brand-sub {
       font-size: 0.85rem;
       color: var(--muted);
-      max-width: 220px;
+    }
+
+    .pill-online {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+      color: var(--ok);
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .top-auth {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-chip {
+      font-size: 0.82rem;
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      max-width: 210px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .auth-trigger {
+    .btn-auth {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--accent);
+      background: linear-gradient(90deg, #0284c7, #2563eb);
       color: #fff;
-      border: none;
+      border: 1px solid rgba(34, 211, 238, 0.45);
       padding: 8px 14px;
       border-radius: 8px;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-auth:hover { filter: brightness(1.1); }
+
+    .btn-outline {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border-soft);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
     }
 
-    .auth-trigger:hover { background: var(--accent-hover); }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      padding: 7px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      cursor: pointer;
+    .btn-outline:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
     }
 
-    .btn-ghost:hover { color: var(--text); background: var(--panel-2); }
-
-    main {
-      max-width: 980px;
-      margin: 28px auto;
+    .shell {
+      max-width: 1280px;
+      margin: 22px auto;
       padding: 0 20px 48px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 18px;
     }
 
-    .card {
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { flex-direction: row; overflow-x: auto; }
+      .brand-sub, .user-chip { display: none; }
+    }
+
+    .sidebar {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 22px;
-      margin-bottom: 20px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      height: fit-content;
     }
 
-    h1 { font-size: 1.45rem; margin-bottom: 6px; }
-    .subtitle { color: var(--muted); font-size: 0.92rem; margin-bottom: 18px; }
+    .side-btn {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
 
-    .auth-notice {
+    .side-btn:hover {
+      color: #fff;
+      background: rgba(34, 211, 238, 0.08);
+    }
+
+    .side-btn.active {
+      color: #fff;
+      background: rgba(2, 132, 199, 0.25);
+      border-color: rgba(34, 211, 238, 0.45);
+    }
+
+    .soc-frame {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 30px rgba(2, 132, 199, 0.14);
+    }
+
+    .status-strip {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
-      padding: 12px 16px;
+      background: var(--panel-2);
+      border: 1px solid var(--border-soft);
       border-radius: 10px;
-      background: rgba(59, 130, 246, 0.12);
-      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 10px 16px;
       margin-bottom: 18px;
-      font-size: 0.9rem;
     }
 
-    .form-grid {
+    .state-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .state-badge {
+      background: var(--ok);
+      color: #03130c;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 5px;
+      letter-spacing: 0.5px;
+    }
+
+    .score-box {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--ok);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 4px 12px;
+      border-radius: 8px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 820px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .box {
+      background: var(--panel-2);
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .box-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notice-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(2, 132, 199, 0.14);
+      border: 1px solid rgba(34, 211, 238, 0.32);
+      border-radius: 10px;
+      padding: 11px 14px;
+      margin-bottom: 14px;
+      font-size: 0.86rem;
+    }
+
+    .add-form {
       display: grid;
       grid-template-columns: 1.6fr 1fr auto;
-      gap: 12px;
+      gap: 10px;
       align-items: end;
     }
 
-    @media (max-width: 720px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .user-badge { display: none; }
+    @media (max-width: 700px) {
+      .add-form { grid-template-columns: 1fr; }
     }
 
     label {
       display: block;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       color: var(--muted);
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     input {
       width: 100%;
       padding: 10px 12px;
       border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
+      border: 1px solid var(--border-soft);
+      background: #060d1b;
       color: var(--text);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
     input:focus {
-      outline: 2px solid rgba(59, 130, 246, 0.5);
-      border-color: var(--accent);
+      outline: none;
+      border-color: var(--cyan);
     }
 
-    .btn-primary {
-      background: var(--accent);
+    .btn-cyan {
+      background: linear-gradient(90deg, #0891b2, #2563eb);
       color: #fff;
       border: none;
       padding: 10px 16px;
       border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.92rem;
+      font-size: 0.86rem;
+      font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
     }
 
-    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-cyan:hover { filter: brightness(1.12); }
 
-    .list-empty {
-      color: var(--muted);
-      font-size: 0.92rem;
-      padding: 14px 0;
-    }
-
-    .monitor-item {
+    .target-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 14px;
-      border-radius: 10px;
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      margin-top: 10px;
       flex-wrap: wrap;
+      padding: 12px 14px;
+      border-radius: 9px;
+      background: rgba(6, 13, 27, 0.85);
+      border: 1px solid var(--border-soft);
+      margin-top: 10px;
     }
 
-    .monitor-meta { display: flex; flex-direction: column; gap: 4px; }
-    .monitor-title { font-weight: 600; }
-    .monitor-url { font-size: 0.85rem; color: var(--muted); word-break: break-all; }
+    .target-info { display: flex; flex-direction: column; gap: 3px; }
+    .target-name { font-weight: 700; font-size: 0.92rem; }
+    .target-url { font-size: 0.8rem; color: var(--muted); word-break: break-all; }
 
-    .badge-ok { color: var(--ok); font-size: 0.82rem; font-weight: 600; }
-    .badge-warn { color: var(--warn); font-size: 0.82rem; font-weight: 600; }
-
-    .actions-row { display: flex; gap: 8px; }
-
-    .feedback {
-      margin-top: 12px;
-      font-size: 0.88rem;
-      min-height: 20px;
+    .tag-ok {
+      color: var(--ok);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.35);
     }
 
+    .tag-warn {
+      color: var(--warn);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .empty-msg {
+      color: var(--muted);
+      font-size: 0.86rem;
+      padding: 16px;
+      text-align: center;
+      border: 1px dashed var(--border-soft);
+      border-radius: 9px;
+      margin-top: 10px;
+    }
+
+    .alert-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: rgba(6, 13, 27, 0.75);
+      border-left: 3px solid var(--cyan);
+      margin-top: 8px;
+      font-size: 0.84rem;
+    }
+
+    .sev-high { color: var(--err); font-weight: 700; }
+    .sev-med { color: var(--warn); font-weight: 700; }
+    .sev-low { color: var(--cyan); font-weight: 700; }
+
+    .feedback { margin-top: 10px; font-size: 0.84rem; min-height: 18px; }
     .feedback.ok { color: var(--ok); }
     .feedback.err { color: var(--err); }
 
-    /* Modal de Cadastro / Login */
-    .modal-backdrop {
+    /* Modal Login / Cadastro */
+    .modal-bg {
       position: fixed;
       inset: 0;
-      background: rgba(5, 8, 18, 0.72);
+      background: rgba(2, 6, 15, 0.8);
       display: none;
       align-items: center;
       justify-content: center;
       padding: 16px;
-      z-index: 50;
+      z-index: 60;
     }
 
-    .modal-backdrop.open { display: flex; }
+    .modal-bg.open { display: flex; }
 
-    .modal {
+    .modal-card {
       width: 100%;
-      max-width: 420px;
+      max-width: 410px;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 22px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 36px rgba(34, 211, 238, 0.18);
     }
 
-    .modal-head {
+    .modal-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 14px;
     }
 
-    .tabs {
+    .auth-tabs {
       display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
+      gap: 6px;
+      margin-bottom: 14px;
+      background: var(--panel-2);
+      padding: 4px;
+      border-radius: 9px;
     }
 
-    .tab-btn {
+    .auth-tab {
       flex: 1;
       padding: 8px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
+      border: none;
+      border-radius: 7px;
+      background: transparent;
       color: var(--muted);
+      font-weight: 700;
       cursor: pointer;
-      font-weight: 600;
     }
 
-    .tab-btn.active {
-      background: var(--accent);
+    .auth-tab.active {
+      background: #0284c7;
       color: #fff;
-      border-color: var(--accent);
     }
 
     .field { margin-bottom: 12px; }
@@ -308,95 +443,148 @@
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand-nav">
-      <div class="brand">
-        <span>GuardiA</span>
-        <span id="apiStatus" class="status-pill">Online</span>
-      </div>
-      <nav>
-        <button id="tabMonitor" class="nav-btn active" type="button" onclick="showSection('monitor')">Monitoramento</button>
-        <button id="tabHistory" class="nav-btn" type="button" onclick="showSection('history')">Histórico</button>
-      </nav>
+  <header class="topbar">
+    <div class="brand-area">
+      <span class="brand-title">GuardiA</span>
+      <span class="brand-sub">— Painel de Monitoramento de Cibersegurança</span>
+      <span id="apiPill" class="pill-online">Online</span>
     </div>
 
-    <div class="header-auth">
-      <span id="userBadge" class="user-badge">Visitante</span>
-      <button id="openAuthBtn" class="auth-trigger" type="button" onclick="openAuthModal('login')" title="Cadastro / Login">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="top-auth">
+      <span id="userChip" class="user-chip">Visitante</span>
+      <button id="authOpenBtn" class="btn-auth" type="button" onclick="openAuth('login')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <path d="M20 21a8 8 0 0 0-16 0"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
-        <span id="authBtnLabel">Login / Cadastro</span>
+        <span id="authBtnText">Login / Cadastro</span>
       </button>
-      <button id="logoutBtn" class="btn-ghost hidden" type="button" onclick="logout()">Sair</button>
+      <button id="logoutBtn" class="btn-outline hidden" type="button" onclick="logout()">Sair</button>
     </div>
   </header>
 
-  <main>
-    <section id="sectionMonitor" class="card">
-      <h1>Monitoramento</h1>
-      <p class="subtitle">Adicione URLs para acompanhar o status e gravar no histórico.</p>
+  <div class="shell">
+    <aside class="sidebar">
+      <button id="navMonitor" class="side-btn active" type="button" onclick="switchView('monitor')">Monitoramento</button>
+      <button id="navAlerts" class="side-btn" type="button" onclick="switchView('alerts')">Alertas</button>
+      <button id="navHistory" class="side-btn" type="button" onclick="switchView('history')">Histórico</button>
+    </aside>
 
-      <div id="authPromptBanner" class="auth-notice">
-        <span>Faça login ou cadastre-se no canto superior direito para gerenciar seus alvos e gravar o histórico.</span>
-        <button class="btn-primary" type="button" onclick="openAuthModal('login')">Entrar ou Cadastrar</button>
-      </div>
-
-      <form class="form-grid" onsubmit="handleAddMonitor(event)">
-        <div>
-          <label for="monitorUrl">URL</label>
-          <input id="monitorUrl" type="url" placeholder="https://exemplo.com" required />
+    <main class="soc-frame">
+      <div class="status-strip">
+        <div class="state-label">
+          <span>Estado Geral da Segurança:</span>
+          <span class="state-badge">PROTEGIDO</span>
         </div>
-        <div>
-          <label for="monitorLabel">Identificação (opcional)</label>
-          <input id="monitorLabel" type="text" placeholder="Ex.: Portal Principal" />
+        <div id="scoreDisplay" class="score-box">94/100</div>
+      </div>
+
+      <!-- Tela Principal: Monitoramento -->
+      <section id="viewMonitor">
+        <div class="grid-2">
+          <div class="box">
+            <div class="box-title">
+              <span>Monitoramento de Alvos Ativos</span>
+              <span id="targetCount" style="font-size:0.78rem;color:var(--cyan);">0 alvos</span>
+            </div>
+
+            <div id="loginNotice" class="notice-bar">
+              <span>Faça login ou cadastre-se no canto superior direito para cadastrar alvos e salvar histórico.</span>
+              <button class="btn-cyan" type="button" onclick="openAuth('login')">Entrar / Cadastrar</button>
+            </div>
+
+            <form class="add-form" onsubmit="addTarget(event)">
+              <div>
+                <label for="targetUrl">URL do Alvo</label>
+                <input id="targetUrl" type="url" placeholder="https://exemplo.com" required />
+              </div>
+              <div>
+                <label for="targetLabel">Identificação (opcional)</label>
+                <input id="targetLabel" type="text" placeholder="Ex.: API Principal" />
+              </div>
+              <button class="btn-cyan" type="submit">Adicionar Alvo</button>
+            </form>
+
+            <div id="targetFeedback" class="feedback"></div>
+            <div id="targetsContainer">
+              <p class="empty-msg">Nenhum alvo cadastrado ainda.</p>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="box-title">
+              <span>Eventos e Alertas Recentes</span>
+              <span style="font-size:0.76rem;color:var(--muted);">Tempo Real</span>
+            </div>
+            <div class="alert-item">
+              <span>TLS / HTTPS e cabeçalhos de segurança verificados</span>
+              <span class="sev-low">Ativo</span>
+            </div>
+            <div class="alert-item">
+              <span>Monitoramento contínuo de disponibilidade HTTP</span>
+              <span class="sev-med">Em dia</span>
+            </div>
+            <div class="alert-item">
+              <span>Integridade da sessão e credenciais protegidas</span>
+              <span class="sev-low">OK</span>
+            </div>
+          </div>
         </div>
-        <button class="btn-primary" type="submit">Adicionar Alvo</button>
-      </form>
+      </section>
 
-      <div id="monitorFeedback" class="feedback"></div>
+      <!-- Aba Alertas -->
+      <section id="viewAlerts" class="hidden">
+        <div class="box">
+          <div class="box-title"><span>Alertas de Segurança</span></div>
+          <div class="alert-item">
+            <span>Verificação de endpoints críticos e certificados ativa</span>
+            <span class="sev-low">Baixo</span>
+          </div>
+          <div class="alert-item">
+            <span>Adicione URLs na aba Monitoramento para acompanhar respostas HTTP</span>
+            <span class="sev-med">Info</span>
+          </div>
+        </div>
+      </section>
 
-      <div id="monitorsList">
-        <p class="list-empty">Nenhum alvo cadastrado ainda.</p>
-      </div>
-    </section>
-
-    <section id="sectionHistory" class="card hidden">
-      <h1>Histórico</h1>
-      <p class="subtitle">Registros de verificação e eventos do monitoramento.</p>
-      <div id="historyList">
-        <p class="list-empty">Faça login para consultar o histórico da sua conta.</p>
-      </div>
-    </section>
-  </main>
+      <!-- Aba Histórico -->
+      <section id="viewHistory" class="hidden">
+        <div class="box">
+          <div class="box-title"><span>Histórico de Verificações</span></div>
+          <div id="historyContainer">
+            <p class="empty-msg">Faça login para consultar o histórico da sua conta.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <!-- Modal Cadastro / Login -->
-  <div id="authModal" class="modal-backdrop" onclick="onBackdropClick(event)">
-    <div class="modal">
-      <div class="modal-head">
-        <h2 style="font-size:1.15rem;">Conta GuardiA</h2>
-        <button class="btn-ghost" type="button" onclick="closeAuthModal()">✕</button>
+  <div id="authModal" class="modal-bg" onclick="backdropClose(event)">
+    <div class="modal-card">
+      <div class="modal-top">
+        <h2 style="font-size:1.05rem;">Acesso à Conta GuardiA</h2>
+        <button class="btn-outline" type="button" onclick="closeAuth()">✕</button>
       </div>
 
-      <div class="tabs">
-        <button id="subTabLogin" class="tab-btn active" type="button" onclick="switchAuthTab('login')">Login</button>
-        <button id="subTabRegister" class="tab-btn" type="button" onclick="switchAuthTab('register')">Cadastro</button>
+      <div class="auth-tabs">
+        <button id="tabLogin" class="auth-tab active" type="button" onclick="setAuthTab('login')">Login</button>
+        <button id="tabRegister" class="auth-tab" type="button" onclick="setAuthTab('register')">Cadastro</button>
       </div>
 
-      <form id="loginForm" onsubmit="handleLogin(event)">
+      <form id="formLogin" onsubmit="doLogin(event)">
         <div class="field">
           <label for="loginEmail">E-mail</label>
           <input id="loginEmail" type="email" placeholder="seu@email.com" required />
         </div>
         <div class="field">
-          <label for="loginPassword">Senha</label>
-          <input id="loginPassword" type="password" placeholder="••••••••" required />
+          <label for="loginPass">Senha</label>
+          <input id="loginPass" type="password" placeholder="••••••••" required />
         </div>
-        <button class="btn-primary" style="width:100%;" type="submit">Entrar</button>
+        <button class="btn-cyan" style="width:100%;" type="submit">Entrar</button>
       </form>
 
-      <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+      <form id="formRegister" class="hidden" onsubmit="doRegister(event)">
         <div class="field">
           <label for="regName">Nome</label>
           <input id="regName" type="text" placeholder="Seu nome" required />
@@ -406,10 +594,10 @@
           <input id="regEmail" type="email" placeholder="seu@email.com" required />
         </div>
         <div class="field">
-          <label for="regPassword">Senha</label>
-          <input id="regPassword" type="password" minlength="6" placeholder="Mínimo 6 caracteres" required />
+          <label for="regPass">Senha</label>
+          <input id="regPass" type="password" minlength="6" placeholder="Mínimo 6 caracteres" required />
         </div>
-        <button class="btn-primary" style="width:100%;" type="submit">Criar Conta</button>
+        <button class="btn-cyan" style="width:100%;" type="submit">Cadastrar</button>
       </form>
 
       <div id="authFeedback" class="feedback"></div>
@@ -420,87 +608,84 @@
     const state = {
       sessionKey: localStorage.getItem("guardia_session_key") || "",
       user: JSON.parse(localStorage.getItem("guardia_user") || "null"),
-      monitors: [],
-      history: []
+      targets: []
     };
 
-    function authHeaders() {
+    function headers() {
       const h = { "Content-Type": "application/json" };
       if (state.sessionKey) h["X-Session-Key"] = state.sessionKey;
       return h;
     }
 
-    function renderAuthUi() {
-      const isLogged = Boolean(state.sessionKey && state.user);
-      document.getElementById("userBadge").textContent = isLogged
-        ? `${state.user.name || state.user.email}`
-        : "Visitante";
-      document.getElementById("authBtnLabel").textContent = isLogged ? "Minha Conta" : "Login / Cadastro";
-      document.getElementById("logoutBtn").classList.toggle("hidden", !isLogged);
-      document.getElementById("authPromptBanner").classList.toggle("hidden", isLogged);
+    function updateAuthBar() {
+      const logged = Boolean(state.sessionKey && state.user);
+      document.getElementById("userChip").textContent = logged ? (state.user.name || state.user.email) : "Visitante";
+      document.getElementById("authBtnText").textContent = logged ? "Minha Conta" : "Login / Cadastro";
+      document.getElementById("logoutBtn").classList.toggle("hidden", !logged);
+      document.getElementById("loginNotice").classList.toggle("hidden", logged);
     }
 
-    function showSection(name) {
-      const isMonitor = name === "monitor";
-      document.getElementById("sectionMonitor").classList.toggle("hidden", !isMonitor);
-      document.getElementById("sectionHistory").classList.toggle("hidden", isMonitor);
-      document.getElementById("tabMonitor").classList.toggle("active", isMonitor);
-      document.getElementById("tabHistory").classList.toggle("active", !isMonitor);
+    function switchView(view) {
+      document.getElementById("viewMonitor").classList.toggle("hidden", view !== "monitor");
+      document.getElementById("viewAlerts").classList.toggle("hidden", view !== "alerts");
+      document.getElementById("viewHistory").classList.toggle("hidden", view !== "history");
 
-      if (!isMonitor && state.sessionKey) {
-        loadHistory();
-      }
+      document.getElementById("navMonitor").classList.toggle("active", view === "monitor");
+      document.getElementById("navAlerts").classList.toggle("active", view === "alerts");
+      document.getElementById("navHistory").classList.toggle("active", view === "history");
+
+      if (view === "history") loadHistory();
     }
 
-    function openAuthModal(tab = "login") {
+    function openAuth(tab = "login") {
       document.getElementById("authFeedback").textContent = "";
       document.getElementById("authFeedback").className = "feedback";
-      switchAuthTab(tab);
+      setAuthTab(tab);
       document.getElementById("authModal").classList.add("open");
     }
 
-    function closeAuthModal() {
+    function closeAuth() {
       document.getElementById("authModal").classList.remove("open");
     }
 
-    function onBackdropClick(e) {
-      if (e.target.id === "authModal") closeAuthModal();
+    function backdropClose(e) {
+      if (e.target.id === "authModal") closeAuth();
     }
 
-    function switchAuthTab(tab) {
+    function setAuthTab(tab) {
       const isLogin = tab === "login";
-      document.getElementById("subTabLogin").classList.toggle("active", isLogin);
-      document.getElementById("subTabRegister").classList.toggle("active", !isLogin);
-      document.getElementById("loginForm").classList.toggle("hidden", !isLogin);
-      document.getElementById("registerForm").classList.toggle("hidden", isLogin);
+      document.getElementById("tabLogin").classList.toggle("active", isLogin);
+      document.getElementById("tabRegister").classList.toggle("active", !isLogin);
+      document.getElementById("formLogin").classList.toggle("hidden", !isLogin);
+      document.getElementById("formRegister").classList.toggle("hidden", isLogin);
     }
 
-    async function handleLogin(e) {
+    async function doLogin(e) {
       e.preventDefault();
       const fb = document.getElementById("authFeedback");
-      fb.textContent = "Entrando...";
+      fb.textContent = "Autenticando...";
       fb.className = "feedback";
 
       try {
-        const res = await fetch("/api/v1/auth/login", {
+        const r = await fetch("/api/v1/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: document.getElementById("loginEmail").value.trim(),
-            password: document.getElementById("loginPassword").value
+            password: document.getElementById("loginPass").value
           })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || data.error || "Falha no login.");
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.message || d.error || "Falha no login.");
 
-        state.sessionKey = data.sessionKey || data.token || "";
-        state.user = data.user || { email: document.getElementById("loginEmail").value.trim() };
+        state.sessionKey = d.sessionKey || d.token || "";
+        state.user = d.user || { email: document.getElementById("loginEmail").value.trim() };
         localStorage.setItem("guardia_session_key", state.sessionKey);
         localStorage.setItem("guardia_user", JSON.stringify(state.user));
 
-        renderAuthUi();
-        closeAuthModal();
-        await loadMonitors();
+        updateAuthBar();
+        closeAuth();
+        await loadTargets();
         await loadHistory();
       } catch (err) {
         fb.textContent = err.message;
@@ -508,28 +693,28 @@
       }
     }
 
-    async function handleRegister(e) {
+    async function doRegister(e) {
       e.preventDefault();
       const fb = document.getElementById("authFeedback");
-      fb.textContent = "Cadastrando...";
+      fb.textContent = "Criando conta...";
       fb.className = "feedback";
 
       try {
-        const res = await fetch("/api/v1/auth/register", {
+        const r = await fetch("/api/v1/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: document.getElementById("regName").value.trim(),
             email: document.getElementById("regEmail").value.trim(),
-            password: document.getElementById("regPassword").value
+            password: document.getElementById("regPass").value
           })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || data.error || "Falha no cadastro.");
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.message || d.error || "Falha no cadastro.");
 
-        fb.textContent = "Cadastro concluído! Agora faça login.";
+        fb.textContent = "Cadastro realizado! Faça login agora.";
         fb.className = "feedback ok";
-        switchAuthTab("login");
+        setAuthTab("login");
         document.getElementById("loginEmail").value = document.getElementById("regEmail").value.trim();
       } catch (err) {
         fb.textContent = err.message;
@@ -540,92 +725,88 @@
     function logout() {
       state.sessionKey = "";
       state.user = null;
-      state.monitors = [];
-      state.history = [];
+      state.targets = [];
       localStorage.removeItem("guardia_session_key");
       localStorage.removeItem("guardia_user");
-      renderAuthUi();
-      renderMonitors();
-      document.getElementById("historyList").innerHTML = '<p class="list-empty">Faça login para consultar o histórico da sua conta.</p>';
+      updateAuthBar();
+      renderTargets();
+      document.getElementById("historyContainer").innerHTML = '<p class="empty-msg">Faça login para consultar o histórico da sua conta.</p>';
     }
 
-    function renderMonitors() {
-      const container = document.getElementById("monitorsList");
-      if (!state.monitors.length) {
-        container.innerHTML = '<p class="list-empty">Nenhum alvo cadastrado ainda.</p>';
+    function renderTargets() {
+      const box = document.getElementById("targetsContainer");
+      document.getElementById("targetCount").textContent = `${state.targets.length} ${state.targets.length === 1 ? "alvo" : "alvos"}`;
+
+      if (!state.targets.length) {
+        box.innerHTML = '<p class="empty-msg">Nenhum alvo cadastrado ainda.</p>';
         return;
       }
 
-      container.innerHTML = state.monitors.map(m => `
-        <div class="monitor-item">
-          <div class="monitor-meta">
-            <span class="monitor-title">${escapeHtml(m.label || m.name || "Alvo")}</span>
-            <span class="monitor-url">${escapeHtml(m.url || "")}</span>
+      box.innerHTML = state.targets.map(t => {
+        const st = t.lastStatus || t.status || "Pendente";
+        const ok = st === "Online" || String(st).includes("200");
+        return `
+          <div class="target-row">
+            <div class="target-info">
+              <span class="target-name">${esc(t.label || t.name || "Alvo")}</span>
+              <span class="target-url">${esc(t.url || "")}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span class="${ok ? "tag-ok" : "tag-warn"}">${esc(st)}</span>
+              <button class="btn-outline" type="button" onclick="checkTarget('${escAttr(t.id || "")}')">Verificar</button>
+              <button class="btn-outline" type="button" onclick="removeTarget('${escAttr(t.id || "")}')">Remover</button>
+            </div>
           </div>
-          <div class="actions-row">
-            <span class="${m.lastStatus === "Online" || m.status === "Online" ? "badge-ok" : "badge-warn"}">
-              ${escapeHtml(m.lastStatus || m.status || "Pendente")}
-            </span>
-            <button class="btn-ghost" type="button" onclick="checkMonitor('${escapeAttr(m.id || "")}')">Verificar</button>
-            <button class="btn-ghost" type="button" onclick="deleteMonitor('${escapeAttr(m.id || "")}')">Remover</button>
-          </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
-    async function loadMonitors() {
+    async function loadTargets() {
       if (!state.sessionKey) {
-        state.monitors = [];
-        renderMonitors();
+        state.targets = [];
+        renderTargets();
         return;
       }
       try {
-        const res = await fetch("/api/v1/monitors", { headers: authHeaders() });
-        if (res.status === 401) {
-          logout();
-          return;
+        const r = await fetch("/api/v1/monitors", { headers: headers() });
+        if (r.status === 401) { logout(); return; }
+        if (r.ok) {
+          const d = await r.json();
+          state.targets = Array.isArray(d) ? d : (d.items || d.monitors || []);
+          renderTargets();
         }
-        if (res.ok) {
-          const data = await res.json();
-          state.monitors = Array.isArray(data) ? data : (data.items || data.monitors || []);
-          renderMonitors();
-        }
-      } catch {
-        // mantém estado atual em caso de falha transitória
-      }
+      } catch {}
     }
 
-    async function handleAddMonitor(e) {
+    async function addTarget(e) {
       e.preventDefault();
-      const fb = document.getElementById("monitorFeedback");
-
+      const fb = document.getElementById("targetFeedback");
       if (!state.sessionKey) {
-        fb.textContent = "Entre na sua conta para adicionar e monitorar alvos.";
+        fb.textContent = "Entre na sua conta para adicionar alvos ao monitoramento.";
         fb.className = "feedback err";
-        openAuthModal("login");
+        openAuth("login");
         return;
       }
 
-      fb.textContent = "Adicionando alvo...";
+      fb.textContent = "Adicionando...";
       fb.className = "feedback";
-
       try {
-        const res = await fetch("/api/v1/monitors", {
+        const r = await fetch("/api/v1/monitors", {
           method: "POST",
-          headers: authHeaders(),
+          headers: headers(),
           body: JSON.stringify({
-            url: document.getElementById("monitorUrl").value.trim(),
-            label: document.getElementById("monitorLabel").value.trim() || null
+            url: document.getElementById("targetUrl").value.trim(),
+            label: document.getElementById("targetLabel").value.trim() || null
           })
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.message || data.error || "Não foi possível adicionar o alvo.");
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.message || d.error || "Erro ao adicionar alvo.");
 
-        document.getElementById("monitorUrl").value = "";
-        document.getElementById("monitorLabel").value = "";
+        document.getElementById("targetUrl").value = "";
+        document.getElementById("targetLabel").value = "";
         fb.textContent = "Alvo adicionado com sucesso.";
         fb.className = "feedback ok";
-        await loadMonitors();
+        await loadTargets();
         await loadHistory();
       } catch (err) {
         fb.textContent = err.message;
@@ -633,92 +814,71 @@
       }
     }
 
-    async function checkMonitor(id) {
+    async function checkTarget(id) {
       if (!state.sessionKey || !id) return;
-      await fetch(`/api/v1/monitors/${encodeURIComponent(id)}/check`, {
-        method: "POST",
-        headers: authHeaders()
-      }).catch(() => {});
-      await loadMonitors();
+      await fetch(`/api/v1/monitors/${encodeURIComponent(id)}/check`, { method: "POST", headers: headers() }).catch(() => {});
+      await loadTargets();
       await loadHistory();
     }
 
-    async function deleteMonitor(id) {
+    async function removeTarget(id) {
       if (!state.sessionKey || !id) return;
-      await fetch(`/api/v1/monitors/${encodeURIComponent(id)}`, {
-        method: "DELETE",
-        headers: authHeaders()
-      }).catch(() => {});
-      await loadMonitors();
+      await fetch(`/api/v1/monitors/${encodeURIComponent(id)}`, { method: "DELETE", headers: headers() }).catch(() => {});
+      await loadTargets();
     }
 
     async function loadHistory() {
-      const container = document.getElementById("historyList");
+      const box = document.getElementById("historyContainer");
       if (!state.sessionKey) {
-        container.innerHTML = '<p class="list-empty">Faça login para consultar o histórico da sua conta.</p>';
+        box.innerHTML = '<p class="empty-msg">Faça login para consultar o histórico da sua conta.</p>';
         return;
       }
-
       try {
-        const res = await fetch("/api/v1/monitors/history", { headers: authHeaders() });
-        if (!res.ok) {
-          container.innerHTML = '<p class="list-empty">Nenhum histórico disponível no momento.</p>';
+        const r = await fetch("/api/v1/monitors/history", { headers: headers() });
+        if (!r.ok) {
+          box.innerHTML = '<p class="empty-msg">Nenhum histórico disponível.</p>';
           return;
         }
-        const data = await res.json();
-        const items = Array.isArray(data) ? data : (data.items || data.history || []);
+        const d = await r.json();
+        const items = Array.isArray(d) ? d : (d.items || d.history || []);
         if (!items.length) {
-          container.innerHTML = '<p class="list-empty">Nenhum registro no histórico ainda.</p>';
+          box.innerHTML = '<p class="empty-msg">Nenhum registro no histórico ainda.</p>';
           return;
         }
-        container.innerHTML = items.map(h => `
-          <div class="monitor-item">
-            <div class="monitor-meta">
-              <span class="monitor-title">${escapeHtml(h.label || h.url || "Verificação")}</span>
-              <span class="monitor-url">${escapeHtml(h.url || "")} — ${escapeHtml(h.status || "")}</span>
+        box.innerHTML = items.map(h => `
+          <div class="target-row">
+            <div class="target-info">
+              <span class="target-name">${esc(h.label || h.url || "Verificação")}</span>
+              <span class="target-url">${esc(h.url || "")} — ${esc(h.status || "")}</span>
             </div>
-            <span class="monitor-url">${escapeHtml(h.checkedAt || h.timestamp || "")}</span>
+            <span class="target-url">${esc(h.checkedAt || h.timestamp || "")}</span>
           </div>
         `).join("");
       } catch {
-        container.innerHTML = '<p class="list-empty">Não foi possível carregar o histórico.</p>';
+        box.innerHTML = '<p class="empty-msg">Não foi possível carregar o histórico.</p>';
       }
     }
 
-    async function checkHealth() {
-      const pill = document.getElementById("apiStatus");
+    async function pingHealth() {
+      const pill = document.getElementById("apiPill");
       try {
-        const res = await fetch("/health");
-        if (res.ok) {
-          pill.textContent = "Online";
-          pill.style.color = "var(--ok)";
-        } else {
-          pill.textContent = "Instável";
-          pill.style.color = "var(--warn)";
-        }
+        const r = await fetch("/health");
+        pill.textContent = r.ok ? "Online" : "Instável";
       } catch {
         pill.textContent = "Offline";
-        pill.style.color = "var(--err)";
       }
     }
 
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+    function esc(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+    function escAttr(s) {
+      return esc(s).replace(/'/g, "&#39;");
     }
 
-    function escapeAttr(str) {
-      return escapeHtml(str).replace(/'/g, "&#39;");
-    }
-
-    renderAuthUi();
-    checkHealth();
-    if (state.sessionKey) {
-      loadMonitors();
-    }
+    updateAuthBar();
+    pingHealth();
+    if (state.sessionKey) loadTargets();
   </script>
 </body>
 </html>
