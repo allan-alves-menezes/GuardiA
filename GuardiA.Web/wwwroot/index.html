@@ -898,7 +898,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <span class="${ok ? "tag-ok" : "tag-warn"}">${esc(st)}</span>
-              <button class="btn-outline" type="button" onclick="checkTarget('${escAttr(t.id || "")}')">Verificar</button>
+              <button class="btn-outline" type="button" onclick="checkTarget('${escAttr(t.id || "")}', this)">Verificar</button>
               <button class="btn-outline" type="button" onclick="removeTarget('${escAttr(t.id || "")}')">Remover</button>
             </div>
           </div>
@@ -960,12 +960,60 @@
       }
     }
 
-    async function checkTarget(id) {
-      if (!state.sessionKey || !id) return;
-      state.pulseCount += 1;
-      await fetch(`/api/v1/monitors/${encodeURIComponent(id)}/check`, { method: "POST", headers: headers() }).catch(() => {});
-      await loadTargets();
-      await loadHistory();
+    async function checkTarget(id, btnEl) {
+      const fb = document.getElementById("targetFeedback");
+      if (!id) return;
+
+      if (!state.sessionKey) {
+        fb.textContent = "Entre na sua conta para verificar os alvos.";
+        fb.className = "feedback err";
+        openAuth("login");
+        return;
+      }
+
+      const originalText = btnEl ? btnEl.textContent : "Verificar";
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.textContent = "Verificando...";
+      }
+      fb.textContent = "Executando verificação do alvo...";
+      fb.className = "feedback";
+
+      try {
+        const encId = encodeURIComponent(id);
+        let res = await fetch(`/api/v1/monitors/${encId}/check`, {
+          method: "POST",
+          headers: headers()
+        });
+
+        if (res.status === 404 || res.status === 405) {
+          res = await fetch(`/api/v1/monitors/${encId}/verify`, {
+            method: "POST",
+            headers: headers()
+          });
+        }
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.message || data.error || `Falha na verificação (HTTP ${res.status}).`);
+        }
+
+        state.pulseCount += 1;
+        const statusMsg = data.status || data.lastStatus || "Concluída";
+        fb.textContent = `Verificação concluída: ${statusMsg}.`;
+        fb.className = "feedback ok";
+
+        await loadTargets();
+        await loadHistory();
+      } catch (err) {
+        fb.textContent = err.message || "Não foi possível verificar o alvo.";
+        fb.className = "feedback err";
+      } finally {
+        if (btnEl) {
+          btnEl.disabled = false;
+          btnEl.textContent = originalText;
+        }
+      }
     }
 
     async function removeTarget(id) {
@@ -1031,3 +1079,4 @@
   </script>
 </body>
 </html>
+
