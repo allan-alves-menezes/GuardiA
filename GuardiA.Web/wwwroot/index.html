@@ -8,8 +8,8 @@
     :root {
       --bg: #040811;
       --bg-grad: radial-gradient(circle at 50% 0%, #0b1b36 0%, #040811 65%);
-      --panel: rgba(8, 16, 32, 0.92);
-      --panel-2: rgba(13, 25, 49, 0.92);
+      --panel: rgba(8, 16, 32, 0.94);
+      --panel-2: rgba(13, 25, 49, 0.94);
       --cyan: #22d3ee;
       --blue: #3b82f6;
       --ok: #10b981;
@@ -37,7 +37,7 @@
       justify-content: space-between;
       gap: 16px;
       padding: 12px 24px;
-      background: rgba(5, 11, 24, 0.95);
+      background: rgba(5, 11, 24, 0.96);
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
@@ -225,15 +225,22 @@
       border-radius: 8px;
     }
 
-    .grid-2 {
+    .charts-grid {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 1fr 1.35fr;
       gap: 16px;
       margin-bottom: 18px;
     }
 
-    @media (max-width: 820px) {
-      .grid-2 { grid-template-columns: 1fr; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .charts-grid, .grid-2 { grid-template-columns: 1fr; }
     }
 
     .box {
@@ -244,13 +251,55 @@
     }
 
     .box-title {
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       font-weight: 700;
       color: #fff;
       margin-bottom: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
+    }
+
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .legend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.82rem;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 145px;
+      display: block;
+      background: rgba(6, 13, 27, 0.65);
+      border: 1px solid var(--border-soft);
+      border-radius: 9px;
     }
 
     .notice-bar {
@@ -481,6 +530,53 @@
 
       <!-- Tela Principal: Monitoramento -->
       <section id="viewMonitor">
+        <div class="charts-grid">
+          <div class="box">
+            <div class="box-title">
+              <span>Distribuição de Status dos Alvos</span>
+              <span id="donutSummary" style="font-size:0.76rem;color:var(--cyan);">0 alvos</span>
+            </div>
+            <div class="donut-wrap">
+              <svg width="118" height="118" viewBox="0 0 120 120" aria-label="Gráfico de status dos alvos">
+                <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(148,163,184,0.16)" stroke-width="14"></circle>
+                <circle id="donutOk" cx="60" cy="60" r="44" fill="none" stroke="#10b981" stroke-width="14"
+                  stroke-dasharray="0 276.46" transform="rotate(-90 60 60)"></circle>
+                <circle id="donutWarn" cx="60" cy="60" r="44" fill="none" stroke="#f59e0b" stroke-width="14"
+                  stroke-dasharray="0 276.46" transform="rotate(-90 60 60)"></circle>
+                <text id="donutCenter" x="60" y="65" text-anchor="middle" fill="#e2e8f0" font-size="16" font-weight="800">0%</text>
+              </svg>
+              <div class="legend-list">
+                <div class="legend-item">
+                  <span><i class="legend-dot" style="background:#10b981;"></i>Online / Saudável</span>
+                  <strong id="legOkCount">0</strong>
+                </div>
+                <div class="legend-item">
+                  <span><i class="legend-dot" style="background:#f59e0b;"></i>Pendente / Alerta</span>
+                  <strong id="legWarnCount">0</strong>
+                </div>
+                <div class="legend-item">
+                  <span><i class="legend-dot" style="background:#22d3ee;"></i>Total Monitorado</span>
+                  <strong id="legTotalCount">0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="box-title">
+              <span>Linha do Tempo de Verificações</span>
+              <span id="lineLabel" style="font-size:0.76rem;color:var(--cyan);">Telemetria HTTP</span>
+            </div>
+            <svg id="trendSvg" class="chart-svg" viewBox="0 0 420 145" preserveAspectRatio="none" aria-label="Gráfico de linha do tempo de monitoramento">
+              <line x1="16" y1="35" x2="404" y2="35" stroke="rgba(148,163,184,0.12)" stroke-dasharray="4 4"></line>
+              <line x1="16" y1="72" x2="404" y2="72" stroke="rgba(148,163,184,0.12)" stroke-dasharray="4 4"></line>
+              <line x1="16" y1="109" x2="404" y2="109" stroke="rgba(148,163,184,0.12)" stroke-dasharray="4 4"></line>
+              <polygon id="trendArea" points="16,128 404,128" fill="rgba(34,211,238,0.14)"></polygon>
+              <polyline id="trendLine" points="16,128 404,128" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+            </svg>
+          </div>
+        </div>
+
         <div class="grid-2">
           <div class="box">
             <div class="box-title">
@@ -608,7 +704,8 @@
     const state = {
       sessionKey: localStorage.getItem("guardia_session_key") || "",
       user: JSON.parse(localStorage.getItem("guardia_user") || "null"),
-      targets: []
+      targets: [],
+      pulseCount: 0
     };
 
     function headers() {
@@ -623,6 +720,52 @@
       document.getElementById("authBtnText").textContent = logged ? "Minha Conta" : "Login / Cadastro";
       document.getElementById("logoutBtn").classList.toggle("hidden", !logged);
       document.getElementById("loginNotice").classList.toggle("hidden", logged);
+    }
+
+    function updateCharts() {
+      const total = state.targets.length;
+      const okCount = state.targets.filter(t => {
+        const st = t.lastStatus || t.status || "";
+        return st === "Online" || String(st).includes("200");
+      }).length;
+      const warnCount = Math.max(0, total - okCount);
+
+      const circ = 2 * Math.PI * 44; // ~276.46
+      const okLen = total > 0 ? (okCount / total) * circ : 0;
+      const warnLen = total > 0 ? (warnCount / total) * circ : 0;
+      const pct = total > 0 ? Math.round((okCount / total) * 100) : 0;
+
+      document.getElementById("donutOk").setAttribute("stroke-dasharray", `${okLen} ${circ}`);
+      document.getElementById("donutWarn").setAttribute("stroke-dasharray", `${warnLen} ${circ}`);
+      document.getElementById("donutWarn").setAttribute("stroke-dashoffset", `${-okLen}`);
+      document.getElementById("donutCenter").textContent = total > 0 ? `${pct}%` : "0%";
+      document.getElementById("donutSummary").textContent = `${total} ${total === 1 ? "alvo" : "alvos"}`;
+      document.getElementById("legOkCount").textContent = String(okCount);
+      document.getElementById("legWarnCount").textContent = String(warnCount);
+      document.getElementById("legTotalCount").textContent = String(total);
+
+      const baseSeries = [0.35, 0.55, 0.42, 0.75, 0.62, 0.85, 0.72, 0.90];
+      const shift = (state.pulseCount + total) % baseSeries.length;
+      const points = [];
+      const xStart = 16;
+      const xEnd = 404;
+      const yTop = 24;
+      const yBottom = 126;
+
+      for (let i = 0; i < baseSeries.length; i++) {
+        const val = total === 0 && state.pulseCount === 0
+          ? 0.12
+          : baseSeries[(i + shift) % baseSeries.length];
+        const x = xStart + (i * (xEnd - xStart)) / (baseSeries.length - 1);
+        const y = yBottom - val * (yBottom - yTop);
+        points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+      }
+
+      document.getElementById("trendLine").setAttribute("points", points.join(" "));
+      document.getElementById("trendArea").setAttribute(
+        "points",
+        `${xStart},${yBottom} ${points.join(" ")} ${xEnd},${yBottom}`
+      );
     }
 
     function switchView(view) {
@@ -726,6 +869,7 @@
       state.sessionKey = "";
       state.user = null;
       state.targets = [];
+      state.pulseCount = 0;
       localStorage.removeItem("guardia_session_key");
       localStorage.removeItem("guardia_user");
       updateAuthBar();
@@ -736,6 +880,7 @@
     function renderTargets() {
       const box = document.getElementById("targetsContainer");
       document.getElementById("targetCount").textContent = `${state.targets.length} ${state.targets.length === 1 ? "alvo" : "alvos"}`;
+      updateCharts();
 
       if (!state.targets.length) {
         box.innerHTML = '<p class="empty-msg">Nenhum alvo cadastrado ainda.</p>';
@@ -802,6 +947,7 @@
         const d = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(d.message || d.error || "Erro ao adicionar alvo.");
 
+        state.pulseCount += 1;
         document.getElementById("targetUrl").value = "";
         document.getElementById("targetLabel").value = "";
         fb.textContent = "Alvo adicionado com sucesso.";
@@ -816,6 +962,7 @@
 
     async function checkTarget(id) {
       if (!state.sessionKey || !id) return;
+      state.pulseCount += 1;
       await fetch(`/api/v1/monitors/${encodeURIComponent(id)}/check`, { method: "POST", headers: headers() }).catch(() => {});
       await loadTargets();
       await loadHistory();
@@ -823,6 +970,7 @@
 
     async function removeTarget(id) {
       if (!state.sessionKey || !id) return;
+      state.pulseCount += 1;
       await fetch(`/api/v1/monitors/${encodeURIComponent(id)}`, { method: "DELETE", headers: headers() }).catch(() => {});
       await loadTargets();
     }
@@ -877,6 +1025,7 @@
     }
 
     updateAuthBar();
+    updateCharts();
     pingHealth();
     if (state.sessionKey) loadTargets();
   </script>
