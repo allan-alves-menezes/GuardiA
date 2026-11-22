@@ -899,7 +899,7 @@
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <span class="${ok ? "tag-ok" : "tag-warn"}">${esc(st)}</span>
               <button class="btn-outline" type="button" onclick="checkTarget('${escAttr(t.id || "")}', this)">Verificar</button>
-              <button class="btn-outline" type="button" onclick="removeTarget('${escAttr(t.id || "")}')">Remover</button>
+              <button class="btn-outline" type="button" onclick="removeTarget('${escAttr(t.id || "")}', this)">Remover</button>
             </div>
           </div>
         `;
@@ -1016,11 +1016,49 @@
       }
     }
 
-    async function removeTarget(id) {
-      if (!state.sessionKey || !id) return;
-      state.pulseCount += 1;
-      await fetch(`/api/v1/monitors/${encodeURIComponent(id)}`, { method: "DELETE", headers: headers() }).catch(() => {});
-      await loadTargets();
+    async function removeTarget(id, btnEl) {
+      const fb = document.getElementById("targetFeedback");
+      if (!id) return;
+
+      if (!state.sessionKey) {
+        fb.textContent = "Entre na sua conta para remover alvos.";
+        fb.className = "feedback err";
+        openAuth("login");
+        return;
+      }
+
+      const originalText = btnEl ? btnEl.textContent : "Remover";
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.textContent = "Removendo...";
+      }
+      fb.textContent = "Removendo alvo...";
+      fb.className = "feedback";
+
+      try {
+        const res = await fetch(`/api/v1/monitors/${encodeURIComponent(id)}`, {
+          method: "DELETE",
+          headers: headers()
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.message || data.error || `Falha ao remover alvo (HTTP ${res.status}).`);
+        }
+
+        state.pulseCount += 1;
+        fb.textContent = "Alvo removido com sucesso.";
+        fb.className = "feedback ok";
+        await loadTargets();
+      } catch (err) {
+        fb.textContent = err.message || "Não foi possível remover o alvo.";
+        fb.className = "feedback err";
+      } finally {
+        if (btnEl) {
+          btnEl.disabled = false;
+          btnEl.textContent = originalText;
+        }
+      }
     }
 
     async function loadHistory() {
@@ -1079,4 +1117,5 @@
   </script>
 </body>
 </html>
+
 
