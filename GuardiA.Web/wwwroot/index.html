@@ -3,257 +3,722 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GuardiA — Web</title>
+  <title>GuardiA — Monitoramento</title>
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: #070b14; color: #f1f5f9; min-height: 100vh; }
-    header { background: #0f172a; border-bottom: 1px solid #1e293b; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-    .brand { font-weight: 800; font-size: 1.2rem; }
-    .nav { display: flex; gap: 8px; }
-    .nav button, .account-btn { padding: 8px 14px; border-radius: 9px; border: 1px solid #334155; background: #162033; color: #f1f5f9; font-weight: 600; cursor: pointer; }
-    .nav button.active, .account-btn { border-color: #3b82f6; background: rgba(37, 99, 235, 0.25); }
-    .pill { padding: 6px 12px; border-radius: 999px; background: #162033; border: 1px solid #1e293b; font-size: 0.82rem; color: #94a3b8; }
-    main { max-width: 1100px; margin: 24px auto; padding: 0 20px 40px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
-    .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 14px; padding: 20px; }
-    h2 { margin: 0 0 6px; font-size: 1.1rem; }
-    .muted { color: #94a3b8; font-size: 0.86rem; margin: 0 0 14px; }
-    .choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .choice { padding: 11px; border-radius: 9px; border: 1px solid #334155; background: #070b14; color: #cbd5e1; font-weight: 700; cursor: pointer; }
-    .choice.active { border-color: #3b82f6; background: rgba(37, 99, 235, 0.22); color: #fff; }
-    label { display: block; margin-top: 10px; font-size: 0.86rem; color: #cbd5e1; }
-    input { width: 100%; margin-top: 5px; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #070b14; color: #fff; }
-    button.primary { margin-top: 14px; width: 100%; padding: 11px; border: 0; border-radius: 9px; background: #2563eb; color: #fff; font-weight: 700; cursor: pointer; }
-    .msg { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: #070b14; border: 1px solid #1e293b; font-size: 0.85rem; color: #cbd5e1; }
-    .list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow: auto; }
-    .item { background: #070b14; border: 1px solid #1e293b; border-radius: 9px; padding: 10px 12px; font-size: 0.85rem; }
-    .view { display: none; }
-    .view.active { display: block; }
+    :root {
+      --bg: #0b1020;
+      --panel: #121a30;
+      --panel-2: #18223d;
+      --text: #eef2ff;
+      --muted: #9aa7c7;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --err: #ef4444;
+      --border: rgba(255, 255, 255, 0.09);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 24px;
+      background: rgba(18, 26, 48, 0.92);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.3px;
+    }
+
+    .status-pill {
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--ok);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .nav-btn:hover { color: var(--text); background: var(--panel-2); }
+    .nav-btn.active {
+      color: var(--text);
+      background: var(--panel-2);
+      border-color: var(--border);
+    }
+
+    .header-auth {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-badge {
+      font-size: 0.85rem;
+      color: var(--muted);
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .auth-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .auth-trigger:hover { background: var(--accent-hover); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .btn-ghost:hover { color: var(--text); background: var(--panel-2); }
+
+    main {
+      max-width: 980px;
+      margin: 28px auto;
+      padding: 0 20px 48px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    h1 { font-size: 1.45rem; margin-bottom: 6px; }
+    .subtitle { color: var(--muted); font-size: 0.92rem; margin-bottom: 18px; }
+
+    .auth-notice {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      margin-bottom: 18px;
+      font-size: 0.9rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    @media (max-width: 720px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .user-badge { display: none; }
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    input:focus {
+      outline: 2px solid rgba(59, 130, 246, 0.5);
+      border-color: var(--accent);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .list-empty {
+      color: var(--muted);
+      font-size: 0.92rem;
+      padding: 14px 0;
+    }
+
+    .monitor-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 10px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .monitor-meta { display: flex; flex-direction: column; gap: 4px; }
+    .monitor-title { font-weight: 600; }
+    .monitor-url { font-size: 0.85rem; color: var(--muted); word-break: break-all; }
+
+    .badge-ok { color: var(--ok); font-size: 0.82rem; font-weight: 600; }
+    .badge-warn { color: var(--warn); font-size: 0.82rem; font-weight: 600; }
+
+    .actions-row { display: flex; gap: 8px; }
+
+    .feedback {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      min-height: 20px;
+    }
+
+    .feedback.ok { color: var(--ok); }
+    .feedback.err { color: var(--err); }
+
+    /* Modal de Cadastro / Login */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 18, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 420px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .field { margin-bottom: 12px; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
   <header>
-    <div class="brand">GuardiA</div>
-    <div class="nav">
-      <button id="tabMon" class="active" type="button" onclick="setView('mon')">Monitoramento</button>
-      <button id="tabHist" type="button" onclick="setView('hist')">Histórico</button>
+    <div class="brand-nav">
+      <div class="brand">
+        <span>GuardiA</span>
+        <span id="apiStatus" class="status-pill">Online</span>
+      </div>
+      <nav>
+        <button id="tabMonitor" class="nav-btn active" type="button" onclick="showSection('monitor')">Monitoramento</button>
+        <button id="tabHistory" class="nav-btn" type="button" onclick="showSection('history')">Histórico</button>
+      </nav>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <span id="healthBadge" class="pill">Verificando...</span>
-      <button id="accBtn" class="account-btn" type="button" onclick="focusAuth('login')">Cadastro / Login</button>
+
+    <div class="header-auth">
+      <span id="userBadge" class="user-badge">Visitante</span>
+      <button id="openAuthBtn" class="auth-trigger" type="button" onclick="openAuthModal('login')" title="Cadastro / Login">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21a8 8 0 0 0-16 0"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span id="authBtnLabel">Login / Cadastro</span>
+      </button>
+      <button id="logoutBtn" class="btn-ghost hidden" type="button" onclick="logout()">Sair</button>
     </div>
   </header>
 
   <main>
-    <div id="viewMon" class="view active">
-      <div class="grid">
-        <section class="card">
-          <h2>Cadastro / Login</h2>
-          <p class="muted">Entre na sua conta para gerenciar alvos e consultar o histórico.</p>
-          <div class="choice-row">
-            <button id="btnReg" class="choice active" type="button" onclick="switchMode('register')">Cadastro</button>
-            <button id="btnLog" class="choice" type="button" onclick="switchMode('login')">Login</button>
-          </div>
-          <form id="regForm">
-            <label for="rName">Nome</label>
-            <input id="rName" type="text" required placeholder="Seu nome" />
-            <label for="rEmail">E-mail</label>
-            <input id="rEmail" type="email" required placeholder="voce@exemplo.com" />
-            <label for="rPass">Senha (mín. 6 caracteres)</label>
-            <input id="rPass" type="password" minlength="6" required placeholder="••••••••" />
-            <button class="primary" type="submit">Cadastrar</button>
-          </form>
-          <form id="logForm" style="display:none;">
-            <label for="lEmail">E-mail</label>
-            <input id="lEmail" type="email" required placeholder="voce@exemplo.com" />
-            <label for="lPass">Senha</label>
-            <input id="lPass" type="password" required placeholder="••••••••" />
-            <button class="primary" type="submit">Entrar</button>
-          </form>
-          <div id="authMsg" class="msg">Use Cadastro para criar sua conta ou Login para entrar.</div>
-        </section>
+    <section id="sectionMonitor" class="card">
+      <h1>Monitoramento</h1>
+      <p class="subtitle">Adicione URLs para acompanhar o status e gravar no histórico.</p>
 
-        <section class="card">
-          <h2>Monitoramento</h2>
-          <p class="muted">Adicione URLs para acompanhar o status e gravar no histórico.</p>
-          <form id="monForm">
-            <label for="mUrl">URL</label>
-            <input id="mUrl" type="text" required placeholder="https://exemplo.com" />
-            <label for="mLabel">Identificação (opcional)</label>
-            <input id="mLabel" type="text" placeholder="Ex.: Portal Principal" />
-            <button class="primary" type="submit">Adicionar Alvo</button>
-          </form>
-          <div id="monList" class="list"><div class="item">Faça login para gerenciar seus alvos.</div></div>
-        </section>
+      <div id="authPromptBanner" class="auth-notice">
+        <span>Faça login ou cadastre-se no canto superior direito para gerenciar seus alvos e gravar o histórico.</span>
+        <button class="btn-primary" type="button" onclick="openAuthModal('login')">Entrar ou Cadastrar</button>
       </div>
-    </div>
 
-    <div id="viewHist" class="view">
-      <div class="grid">
-        <section class="card">
-          <h2>Histórico de Monitoramento</h2>
-          <p class="muted">Alvos registrados na sua conta.</p>
-          <div id="histMonitors" class="list"><div class="item">Faça login para ver o histórico.</div></div>
-        </section>
-        <section class="card">
-          <h2>Histórico de Telemetria (Agente)</h2>
-          <p class="muted">Dispositivos e métricas reportadas.</p>
-          <div id="histDevices" class="list"><div class="item">Carregando...</div></div>
-        </section>
+      <form class="form-grid" onsubmit="handleAddMonitor(event)">
+        <div>
+          <label for="monitorUrl">URL</label>
+          <input id="monitorUrl" type="url" placeholder="https://exemplo.com" required />
+        </div>
+        <div>
+          <label for="monitorLabel">Identificação (opcional)</label>
+          <input id="monitorLabel" type="text" placeholder="Ex.: Portal Principal" />
+        </div>
+        <button class="btn-primary" type="submit">Adicionar Alvo</button>
+      </form>
+
+      <div id="monitorFeedback" class="feedback"></div>
+
+      <div id="monitorsList">
+        <p class="list-empty">Nenhum alvo cadastrado ainda.</p>
       </div>
-    </div>
+    </section>
+
+    <section id="sectionHistory" class="card hidden">
+      <h1>Histórico</h1>
+      <p class="subtitle">Registros de verificação e eventos do monitoramento.</p>
+      <div id="historyList">
+        <p class="list-empty">Faça login para consultar o histórico da sua conta.</p>
+      </div>
+    </section>
   </main>
 
+  <!-- Modal Cadastro / Login -->
+  <div id="authModal" class="modal-backdrop" onclick="onBackdropClick(event)">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 style="font-size:1.15rem;">Conta GuardiA</h2>
+        <button class="btn-ghost" type="button" onclick="closeAuthModal()">✕</button>
+      </div>
+
+      <div class="tabs">
+        <button id="subTabLogin" class="tab-btn active" type="button" onclick="switchAuthTab('login')">Login</button>
+        <button id="subTabRegister" class="tab-btn" type="button" onclick="switchAuthTab('register')">Cadastro</button>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="field">
+          <label for="loginEmail">E-mail</label>
+          <input id="loginEmail" type="email" placeholder="seu@email.com" required />
+        </div>
+        <div class="field">
+          <label for="loginPassword">Senha</label>
+          <input id="loginPassword" type="password" placeholder="••••••••" required />
+        </div>
+        <button class="btn-primary" style="width:100%;" type="submit">Entrar</button>
+      </form>
+
+      <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+        <div class="field">
+          <label for="regName">Nome</label>
+          <input id="regName" type="text" placeholder="Seu nome" required />
+        </div>
+        <div class="field">
+          <label for="regEmail">E-mail</label>
+          <input id="regEmail" type="email" placeholder="seu@email.com" required />
+        </div>
+        <div class="field">
+          <label for="regPassword">Senha</label>
+          <input id="regPassword" type="password" minlength="6" placeholder="Mínimo 6 caracteres" required />
+        </div>
+        <button class="btn-primary" style="width:100%;" type="submit">Criar Conta</button>
+      </form>
+
+      <div id="authFeedback" class="feedback"></div>
+    </div>
+  </div>
+
   <script>
-    const SESSION_KEY = "guardia_session_key";
-    const SESSION_EMAIL = "guardia_session_email";
+    const state = {
+      sessionKey: localStorage.getItem("guardia_session_key") || "",
+      user: JSON.parse(localStorage.getItem("guardia_user") || "null"),
+      monitors: [],
+      history: []
+    };
 
-    const getSessionKey = () => (localStorage.getItem(SESSION_KEY) || "").trim();
-    const getSessionEmail = () => (localStorage.getItem(SESSION_EMAIL) || "").trim();
-
-    function syncHeader() {
-      const email = getSessionEmail();
-      document.getElementById("accBtn").textContent = (getSessionKey() && email) ? email : "Cadastro / Login";
-      if (email) document.getElementById("lEmail").value = email;
+    function authHeaders() {
+      const h = { "Content-Type": "application/json" };
+      if (state.sessionKey) h["X-Session-Key"] = state.sessionKey;
+      return h;
     }
 
-    function setView(view) {
-      const isMon = view === "mon";
-      document.getElementById("tabMon").classList.toggle("active", isMon);
-      document.getElementById("tabHist").classList.toggle("active", !isMon);
-      document.getElementById("viewMon").classList.toggle("active", isMon);
-      document.getElementById("viewHist").classList.toggle("active", !isMon);
-      loadMonitors();
-      loadDevices();
+    function renderAuthUi() {
+      const isLogged = Boolean(state.sessionKey && state.user);
+      document.getElementById("userBadge").textContent = isLogged
+        ? `${state.user.name || state.user.email}`
+        : "Visitante";
+      document.getElementById("authBtnLabel").textContent = isLogged ? "Minha Conta" : "Login / Cadastro";
+      document.getElementById("logoutBtn").classList.toggle("hidden", !isLogged);
+      document.getElementById("authPromptBanner").classList.toggle("hidden", isLogged);
     }
 
-    function switchMode(mode) {
-      const reg = mode === "register";
-      document.getElementById("btnReg").classList.toggle("active", reg);
-      document.getElementById("btnLog").classList.toggle("active", !reg);
-      document.getElementById("regForm").style.display = reg ? "block" : "none";
-      document.getElementById("logForm").style.display = reg ? "none" : "block";
-    }
+    function showSection(name) {
+      const isMonitor = name === "monitor";
+      document.getElementById("sectionMonitor").classList.toggle("hidden", !isMonitor);
+      document.getElementById("sectionHistory").classList.toggle("hidden", isMonitor);
+      document.getElementById("tabMonitor").classList.toggle("active", isMonitor);
+      document.getElementById("tabHistory").classList.toggle("active", !isMonitor);
 
-    function focusAuth(mode) { setView("mon"); switchMode(mode); }
-
-    fetch("/health", { cache: "no-store" })
-      .then(r => { document.getElementById("healthBadge").textContent = r.ok ? "Online" : "Aviso"; })
-      .catch(() => { document.getElementById("healthBadge").textContent = "Offline"; });
-
-    document.getElementById("regForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const msg = document.getElementById("authMsg");
-      const res = await fetch("/api/v1/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: document.getElementById("rName").value.trim(),
-          email: document.getElementById("rEmail").value.trim(),
-          password: document.getElementById("rPass").value
-        })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.sessionKey) {
-        localStorage.setItem(SESSION_KEY, data.sessionKey);
-        localStorage.setItem(SESSION_EMAIL, data.email);
-        syncHeader();
-        msg.textContent = `Conta criada e conectada: ${data.email}.`;
-        loadMonitors();
-      } else {
-        msg.textContent = data.error || "Não foi possível cadastrar.";
+      if (!isMonitor && state.sessionKey) {
+        loadHistory();
       }
-    });
+    }
 
-    document.getElementById("logForm").addEventListener("submit", async (e) => {
+    function openAuthModal(tab = "login") {
+      document.getElementById("authFeedback").textContent = "";
+      document.getElementById("authFeedback").className = "feedback";
+      switchAuthTab(tab);
+      document.getElementById("authModal").classList.add("open");
+    }
+
+    function closeAuthModal() {
+      document.getElementById("authModal").classList.remove("open");
+    }
+
+    function onBackdropClick(e) {
+      if (e.target.id === "authModal") closeAuthModal();
+    }
+
+    function switchAuthTab(tab) {
+      const isLogin = tab === "login";
+      document.getElementById("subTabLogin").classList.toggle("active", isLogin);
+      document.getElementById("subTabRegister").classList.toggle("active", !isLogin);
+      document.getElementById("loginForm").classList.toggle("hidden", !isLogin);
+      document.getElementById("registerForm").classList.toggle("hidden", isLogin);
+    }
+
+    async function handleLogin(e) {
       e.preventDefault();
-      const msg = document.getElementById("authMsg");
-      const res = await fetch("/api/v1/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: document.getElementById("lEmail").value.trim(),
-          password: document.getElementById("lPass").value
-        })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.sessionKey) {
-        localStorage.setItem(SESSION_KEY, data.sessionKey);
-        localStorage.setItem(SESSION_EMAIL, data.email);
-        document.getElementById("lPass").value = "";
-        syncHeader();
-        msg.textContent = `Login realizado: ${data.name} (${data.email}).`;
-        loadMonitors();
-      } else {
-        msg.textContent = data.error || "E-mail ou senha inválidos.";
+      const fb = document.getElementById("authFeedback");
+      fb.textContent = "Entrando...";
+      fb.className = "feedback";
+
+      try {
+        const res = await fetch("/api/v1/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: document.getElementById("loginEmail").value.trim(),
+            password: document.getElementById("loginPassword").value
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || data.error || "Falha no login.");
+
+        state.sessionKey = data.sessionKey || data.token || "";
+        state.user = data.user || { email: document.getElementById("loginEmail").value.trim() };
+        localStorage.setItem("guardia_session_key", state.sessionKey);
+        localStorage.setItem("guardia_user", JSON.stringify(state.user));
+
+        renderAuthUi();
+        closeAuthModal();
+        await loadMonitors();
+        await loadHistory();
+      } catch (err) {
+        fb.textContent = err.message;
+        fb.className = "feedback err";
       }
-    });
+    }
 
-    document.getElementById("monForm").addEventListener("submit", async (e) => {
+    async function handleRegister(e) {
       e.preventDefault();
-      const msg = document.getElementById("authMsg");
-      const key = getSessionKey();
-      if (!key) {
-        msg.textContent = "Faça cadastro ou login primeiro para adicionar alvos.";
+      const fb = document.getElementById("authFeedback");
+      fb.textContent = "Cadastrando...";
+      fb.className = "feedback";
+
+      try {
+        const res = await fetch("/api/v1/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: document.getElementById("regName").value.trim(),
+            email: document.getElementById("regEmail").value.trim(),
+            password: document.getElementById("regPassword").value
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || data.error || "Falha no cadastro.");
+
+        fb.textContent = "Cadastro concluído! Agora faça login.";
+        fb.className = "feedback ok";
+        switchAuthTab("login");
+        document.getElementById("loginEmail").value = document.getElementById("regEmail").value.trim();
+      } catch (err) {
+        fb.textContent = err.message;
+        fb.className = "feedback err";
+      }
+    }
+
+    function logout() {
+      state.sessionKey = "";
+      state.user = null;
+      state.monitors = [];
+      state.history = [];
+      localStorage.removeItem("guardia_session_key");
+      localStorage.removeItem("guardia_user");
+      renderAuthUi();
+      renderMonitors();
+      document.getElementById("historyList").innerHTML = '<p class="list-empty">Faça login para consultar o histórico da sua conta.</p>';
+    }
+
+    function renderMonitors() {
+      const container = document.getElementById("monitorsList");
+      if (!state.monitors.length) {
+        container.innerHTML = '<p class="list-empty">Nenhum alvo cadastrado ainda.</p>';
         return;
       }
-      const res = await fetch("/api/v1/monitors", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Session-Key": key },
-        body: JSON.stringify({
-          url: document.getElementById("mUrl").value.trim(),
-          label: document.getElementById("mLabel").value.trim()
-        })
-      });
-      if (res.ok) {
-        document.getElementById("mUrl").value = "";
-        document.getElementById("mLabel").value = "";
-        loadMonitors();
-      } else {
-        msg.textContent = "Sessão inválida ou erro ao salvar alvo.";
-      }
-    });
+
+      container.innerHTML = state.monitors.map(m => `
+        <div class="monitor-item">
+          <div class="monitor-meta">
+            <span class="monitor-title">${escapeHtml(m.label || m.name || "Alvo")}</span>
+            <span class="monitor-url">${escapeHtml(m.url || "")}</span>
+          </div>
+          <div class="actions-row">
+            <span class="${m.lastStatus === "Online" || m.status === "Online" ? "badge-ok" : "badge-warn"}">
+              ${escapeHtml(m.lastStatus || m.status || "Pendente")}
+            </span>
+            <button class="btn-ghost" type="button" onclick="checkMonitor('${escapeAttr(m.id || "")}')">Verificar</button>
+            <button class="btn-ghost" type="button" onclick="deleteMonitor('${escapeAttr(m.id || "")}')">Remover</button>
+          </div>
+        </div>
+      `).join("");
+    }
 
     async function loadMonitors() {
-      const monBox = document.getElementById("monList");
-      const histBox = document.getElementById("histMonitors");
-      const key = getSessionKey();
-      if (!key) {
-        monBox.innerHTML = `<div class="item">Faça login para gerenciar seus alvos.</div>`;
-        histBox.innerHTML = `<div class="item">Faça login para ver o histórico.</div>`;
+      if (!state.sessionKey) {
+        state.monitors = [];
+        renderMonitors();
         return;
       }
-      const res = await fetch("/api/v1/monitors", { headers: { "X-Session-Key": key }, cache: "no-store" });
-      if (!res.ok) return;
-      const items = await res.json();
-      if (!items.length) {
-        monBox.innerHTML = `<div class="item">Nenhum alvo cadastrado ainda.</div>`;
-        histBox.innerHTML = `<div class="item">Nenhum registro no histórico ainda.</div>`;
-        return;
-      }
-      monBox.innerHTML = items.map(i => `<div class="item"><strong>${i.url}</strong> — ${i.label} (${i.status})</div>`).join("");
-      histBox.innerHTML = items.map(i => `<div class="item"><strong>${i.url}</strong> — ${i.label}<br><span style="color:#94a3b8;">Criado em ${new Date(i.createdAtUtc).toLocaleString("pt-BR")}</span></div>`).join("");
-    }
-
-    async function loadDevices() {
-      const box = document.getElementById("histDevices");
       try {
-        const res = await fetch("/api/v1/agent/devices", { cache: "no-store" });
-        const list = await res.json();
-        if (!Array.isArray(list) || !list.length) {
-          box.innerHTML = `<div class="item">Nenhuma telemetria registrada ainda.</div>`;
+        const res = await fetch("/api/v1/monitors", { headers: authHeaders() });
+        if (res.status === 401) {
+          logout();
           return;
         }
-        box.innerHTML = list.map(d => `<div class="item"><strong>${d.machineName}</strong> (${d.clientId})<br><span style="color:#94a3b8;">CPU ${d.cpuLoadPercent}% • Memória ${d.memoryUsedPercent}% • TCP ${d.activeTcpConnectionsCount}</span></div>`).join("");
+        if (res.ok) {
+          const data = await res.json();
+          state.monitors = Array.isArray(data) ? data : (data.items || data.monitors || []);
+          renderMonitors();
+        }
       } catch {
-        box.innerHTML = `<div class="item">Erro ao carregar telemetria.</div>`;
+        // mantém estado atual em caso de falha transitória
       }
     }
 
-    syncHeader();
-    loadMonitors();
-    loadDevices();
-    setInterval(loadDevices, 5000);
+    async function handleAddMonitor(e) {
+      e.preventDefault();
+      const fb = document.getElementById("monitorFeedback");
+
+      if (!state.sessionKey) {
+        fb.textContent = "Entre na sua conta para adicionar e monitorar alvos.";
+        fb.className = "feedback err";
+        openAuthModal("login");
+        return;
+      }
+
+      fb.textContent = "Adicionando alvo...";
+      fb.className = "feedback";
+
+      try {
+        const res = await fetch("/api/v1/monitors", {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            url: document.getElementById("monitorUrl").value.trim(),
+            label: document.getElementById("monitorLabel").value.trim() || null
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || data.error || "Não foi possível adicionar o alvo.");
+
+        document.getElementById("monitorUrl").value = "";
+        document.getElementById("monitorLabel").value = "";
+        fb.textContent = "Alvo adicionado com sucesso.";
+        fb.className = "feedback ok";
+        await loadMonitors();
+        await loadHistory();
+      } catch (err) {
+        fb.textContent = err.message;
+        fb.className = "feedback err";
+      }
+    }
+
+    async function checkMonitor(id) {
+      if (!state.sessionKey || !id) return;
+      await fetch(`/api/v1/monitors/${encodeURIComponent(id)}/check`, {
+        method: "POST",
+        headers: authHeaders()
+      }).catch(() => {});
+      await loadMonitors();
+      await loadHistory();
+    }
+
+    async function deleteMonitor(id) {
+      if (!state.sessionKey || !id) return;
+      await fetch(`/api/v1/monitors/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: authHeaders()
+      }).catch(() => {});
+      await loadMonitors();
+    }
+
+    async function loadHistory() {
+      const container = document.getElementById("historyList");
+      if (!state.sessionKey) {
+        container.innerHTML = '<p class="list-empty">Faça login para consultar o histórico da sua conta.</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/v1/monitors/history", { headers: authHeaders() });
+        if (!res.ok) {
+          container.innerHTML = '<p class="list-empty">Nenhum histórico disponível no momento.</p>';
+          return;
+        }
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : (data.items || data.history || []);
+        if (!items.length) {
+          container.innerHTML = '<p class="list-empty">Nenhum registro no histórico ainda.</p>';
+          return;
+        }
+        container.innerHTML = items.map(h => `
+          <div class="monitor-item">
+            <div class="monitor-meta">
+              <span class="monitor-title">${escapeHtml(h.label || h.url || "Verificação")}</span>
+              <span class="monitor-url">${escapeHtml(h.url || "")} — ${escapeHtml(h.status || "")}</span>
+            </div>
+            <span class="monitor-url">${escapeHtml(h.checkedAt || h.timestamp || "")}</span>
+          </div>
+        `).join("");
+      } catch {
+        container.innerHTML = '<p class="list-empty">Não foi possível carregar o histórico.</p>';
+      }
+    }
+
+    async function checkHealth() {
+      const pill = document.getElementById("apiStatus");
+      try {
+        const res = await fetch("/health");
+        if (res.ok) {
+          pill.textContent = "Online";
+          pill.style.color = "var(--ok)";
+        } else {
+          pill.textContent = "Instável";
+          pill.style.color = "var(--warn)";
+        }
+      } catch {
+        pill.textContent = "Offline";
+        pill.style.color = "var(--err)";
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str).replace(/'/g, "&#39;");
+    }
+
+    renderAuthUi();
+    checkHealth();
+    if (state.sessionKey) {
+      loadMonitors();
+    }
   </script>
 </body>
 </html>
