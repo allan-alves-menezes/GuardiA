@@ -66,6 +66,16 @@ app.MapPost("/api/v1/monitors", (MonitorCreateRequest req, HttpRequest http, Gua
     return Results.Created("/api/v1/monitors", item);
 });
 
+app.MapDelete("/api/v1/monitors/{id}", (string id, HttpRequest http, GuardiaWebStore store) =>
+{
+    var sessionKey = http.Headers["X-Session-Key"].FirstOrDefault();
+    var user = store.FindUserBySessionKey(sessionKey);
+    if (user is null) return Results.Unauthorized();
+
+    var removed = store.RemoveMonitor(id, user.Email);
+    return removed ? Results.Ok(new { removed = true, id }) : Results.NotFound(new { error = "Alvo não encontrado." });
+});
+
 app.MapGet("/api/v1/agent/devices", (GuardiaWebStore store) => Results.Ok(store.GetDevices()));
 app.MapPost("/api/v1/agent/heartbeat", (AgentHeartbeatPayload payload, GuardiaWebStore store) => Results.Ok(store.RecordHeartbeat(payload)));
 app.MapFallbackToFile("index.html");
@@ -140,6 +150,22 @@ public sealed class GuardiaWebStore
     {
         if (string.IsNullOrWhiteSpace(sessionKey)) return null;
         return _users.Values.FirstOrDefault(u => string.Equals(u.SessionKey, sessionKey.Trim(), StringComparison.Ordinal));
+    }
+
+    public bool RemoveMonitor(string id, string ownerEmail)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return false;
+        lock (_sync)
+        {
+            var idx = _monitors.FindIndex(m =>
+                string.Equals(m.Id, id, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(m.OwnerEmail, ownerEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (idx < 0) return false;
+            _monitors.RemoveAt(idx);
+            Save();
+            return true;
+        }
     }
 
     public IEnumerable<MonitorEntry> GetMonitors(string ownerEmail)
@@ -259,4 +285,5 @@ public sealed class GuardiaWebTelemetryWorker : BackgroundService
         }
     }
 }
+
 

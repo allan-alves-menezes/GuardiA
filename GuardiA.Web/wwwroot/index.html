@@ -898,8 +898,8 @@
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <span class="${ok ? "tag-ok" : "tag-warn"}">${esc(st)}</span>
-              <button class="btn-outline" type="button" onclick="checkTarget('${escAttr(t.id || "")}', this)">Verificar</button>
-              <button class="btn-outline" type="button" onclick="removeTarget('${escAttr(t.id || "")}', this)">Remover</button>
+              <button class="btn-outline" type="button" onclick="checkTarget('${escAttr(t.id || t.Id || "")}', this)">Verificar</button>
+              <button class="btn-outline" type="button" onclick="removeTarget('${escAttr(t.id || t.Id || "")}', this)">Remover</button>
             </div>
           </div>
         `;
@@ -1117,5 +1117,6 @@
   </script>
 </body>
 </html>
+
 
 
