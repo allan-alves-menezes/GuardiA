@@ -42,8 +42,15 @@ public sealed class SystemTelemetryCollector(ILogger<SystemTelemetryCollector> l
         var defenderEnabled = string.Equals(defenderStatus, "True", StringComparison.OrdinalIgnoreCase);
         var hasSecurityWarning = (publicFw == false) || (defenderStatus is not null && !defenderEnabled && defenderStatus != "Desconhecido");
 
+        var defenderOk = string.Equals(defenderStatus, "True", StringComparison.OrdinalIgnoreCase);
+        var warn = (publicFw == false) || (defenderStatus is not null && !defenderOk && defenderStatus != "Desconhecido");
+
         return new AgentHeartbeatPayload
         {
+            DeviceId = $"{clientId}-{Environment.MachineName.ToLowerInvariant()}",
+            Hostname = Environment.MachineName,
+            Os = OperatingSystem.IsWindows() ? "Windows" : RuntimeInformation.OSDescription,
+            Status = warn ? "Alerta" : "Online",
             DeviceId = $"{clientId}-{Environment.MachineName.ToLowerInvariant()}",
             Hostname = Environment.MachineName,
             Os = OperatingSystem.IsWindows() ? "Windows" : RuntimeInformation.OSDescription,
@@ -160,3 +167,4 @@ public sealed class SystemTelemetryCollector(ILogger<SystemTelemetryCollector> l
         return await outputTask;
     }
 }
+

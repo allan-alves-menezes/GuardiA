@@ -36,38 +36,25 @@ public sealed class DownloadRiskWatcher(ILogger<DownloadRiskWatcher> logger) : I
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Não foi possível iniciar o monitoramento da pasta Downloads.");
+            logger.LogWarning(ex, "Falha ao iniciar monitoramento da pasta Downloads.");
         }
     }
 
-    private void OnFileCreated(object sender, FileSystemEventArgs e)
+    private void OnFileCreated(object sender, FileSystemEventArgs e) => HandlePath(e.Name);
+    private void OnFileRenamed(object sender, RenamedEventArgs e) => HandlePath(e.Name);
+
+    private void HandlePath(string? fileName)
     {
-        if (string.IsNullOrWhiteSpace(e.Name)) return;
-        if (e.Name.EndsWith(".crdownload", StringComparison.OrdinalIgnoreCase) ||
-            e.Name.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase) ||
-            e.Name.EndsWith(".part", StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrWhiteSpace(fileName)) return;
+        if (fileName.EndsWith(".crdownload", StringComparison.OrdinalIgnoreCase) ||
+            fileName.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase) ||
+            fileName.EndsWith(".part", StringComparison.OrdinalIgnoreCase))
             return;
 
-        EvaluateFile(e.FullPath, e.Name);
-    }
-
-    private void OnFileRenamed(object sender, RenamedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(e.Name)) return;
-        if (e.Name.EndsWith(".crdownload", StringComparison.OrdinalIgnoreCase) ||
-            e.Name.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase) ||
-            e.Name.EndsWith(".part", StringComparison.OrdinalIgnoreCase))
-            return;
-
-        EvaluateFile(e.FullPath, e.Name);
-    }
-
-    private void EvaluateFile(string fullPath, string fileName)
-    {
         var ext = Path.GetExtension(fileName);
         var isHighRisk = HighRiskExtensions.Contains(ext);
         var summary = isHighRisk
-            ? $"Arquivo baixado com extensão executável/script de alto risco ({ext}): {fileName}"
+            ? $"Arquivo baixado com extensao de alto risco ({ext}): {fileName}"
             : $"Novo arquivo baixado no PC: {fileName}";
 
         _pendingEvents.Enqueue(new AgentSecurityEventPayload
@@ -85,15 +72,9 @@ public sealed class DownloadRiskWatcher(ILogger<DownloadRiskWatcher> logger) : I
     public List<AgentSecurityEventPayload> DrainEvents()
     {
         var list = new List<AgentSecurityEventPayload>();
-        while (_pendingEvents.TryDequeue(out var ev))
-        {
-            list.Add(ev);
-        }
+        while (_pendingEvents.TryDequeue(out var ev)) list.Add(ev);
         return list;
     }
 
-    public void Dispose()
-    {
-        _watcher?.Dispose();
-    }
+    public void Dispose() => _watcher?.Dispose();
 }
