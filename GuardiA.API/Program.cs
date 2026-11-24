@@ -14,6 +14,22 @@ using Scalar.AspNetCore;
 
 Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
+// Garante que os arquivos estáticos de wwwroot (como index.html) estejam disponíveis no diretório de execução
+var sourceWwwRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "wwwroot"));
+var targetWwwRoot = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
+if (Directory.Exists(sourceWwwRoot) && !string.Equals(sourceWwwRoot, targetWwwRoot, StringComparison.OrdinalIgnoreCase))
+{
+    Directory.CreateDirectory(targetWwwRoot);
+    foreach (var file in Directory.GetFiles(sourceWwwRoot))
+    {
+        var destFile = Path.Combine(targetWwwRoot, Path.GetFileName(file));
+        if (!File.Exists(destFile) || File.GetLastWriteTimeUtc(file) > File.GetLastWriteTimeUtc(destFile))
+        {
+            File.Copy(file, destFile, overwrite: true);
+        }
+    }
+}
+
 string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "guardia-.txt");
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -46,6 +62,13 @@ try
     string dbPath = configuredDbPath;
     string sqliteConnectionString = $"Data Source={dbPath}";
     ProgramHelpers.InitDatabase(dbPath);
+
+    // Caminho raiz para o armazenamento segregado (Clients/clients.json e Credentials/passwords.json)
+    string storageRoot = builder.Configuration["Storage:Path"]
+        ?? Environment.GetEnvironmentVariable("GUARDIA_STORAGE_PATH")
+        ?? Path.Combine(string.IsNullOrWhiteSpace(dbDir) ? AppContext.BaseDirectory : dbDir, "Storage");
+
+    var credentialStore = new ClientCredentialStore(storageRoot);
 
     // Garante que as tabelas e colunas esperadas existam no SQLite
     using (var connection = new SqliteConnection(sqliteConnectionString))
@@ -111,6 +134,7 @@ try
     builder.Services.AddDbContext<GuardiaDbContext>(options =>
         options.UseSqlite(sqliteConnectionString));
 
+    builder.Services.AddSingleton(credentialStore);
     builder.Services.AddSingleton(new AgentTelemetryRepository(dbPath));
     builder.Services.AddHostedService<AutonomousMonitoringService>();
 
@@ -216,7 +240,10 @@ try
     .WithName("HealthCheck")
     .WithTags("Saúde");
 
-    app.MapPost("/api/v1/auth/register", async (RegisterUserRequest request) =>
+    app.MapPost("/api/v1/auth/register", async (
+        RegisterUserRequest request,
+        ClientCredentialStore store,
+        CancellationToken ct) =>
     {
         if (string.IsNullOrWhiteSpace(request.Name) ||
             string.IsNullOrWhiteSpace(request.Email) ||
@@ -236,6 +263,12 @@ try
             return Results.BadRequest(new { erro = "Informe um endereço de e-mail válido." });
         }
 
+        var existingInStore = await store.GetClientByEmailAsync(email, ct);
+        if (existingInStore is not null)
+        {
+            return Results.Conflict(new { erro = "Já existe uma conta cadastrada com este e-mail." });
+        }
+
         var name = request.Name.Trim();
         var passwordHash = ProgramAuthHelpers.HashPassword(request.Password);
         var apiKey = ProgramAuthHelpers.GenerateApiKey();
@@ -244,31 +277,42 @@ try
         try
         {
             using var connection = new SqliteConnection(sqliteConnectionString);
-            await connection.OpenAsync();
+            await connection.OpenAsync(ct);
 
             var checkCmd = connection.CreateCommand();
             checkCmd.CommandText = "SELECT Id FROM Users WHERE lower(Email) = $email LIMIT 1;";
             checkCmd.Parameters.AddWithValue("$email", email);
-            var existing = await checkCmd.ExecuteScalarAsync();
+            var existing = await checkCmd.ExecuteScalarAsync(ct);
             if (existing is not null)
             {
                 return Results.Conflict(new { erro = "Já existe uma conta cadastrada com este e-mail." });
             }
 
+            // Mantém o registro de referência no SQLite sem gravar o hash real da senha (que fica apenas em Credentials/passwords.json)
             var insertCmd = connection.CreateCommand();
             insertCmd.CommandText = @"
                 INSERT INTO Users (Name, Email, PasswordHash, ApiKey, CreatedAt, IsActive)
-                VALUES ($name, $email, $hash, $apiKey, $createdAt, 1);
+                VALUES ($name, $email, '[SEGREGATED]', $apiKey, $createdAt, 1);
                 SELECT last_insert_rowid();";
             insertCmd.Parameters.AddWithValue("$name", name);
             insertCmd.Parameters.AddWithValue("$email", email);
-            insertCmd.Parameters.AddWithValue("$hash", passwordHash);
             insertCmd.Parameters.AddWithValue("$apiKey", apiKey);
             insertCmd.Parameters.AddWithValue("$createdAt", createdAt);
 
-            var userId = Convert.ToInt64(await insertCmd.ExecuteScalarAsync());
+            var userId = Convert.ToInt64(await insertCmd.ExecuteScalarAsync(ct));
 
-            Log.Information("Nova conta registrada com sucesso para {Email} (UserId={UserId})", email, userId);
+            var clientRecord = new ClientAccountRecord(
+                UserId: userId,
+                Name: name,
+                Email: email,
+                ApiKey: apiKey,
+                CreatedAt: createdAt,
+                IsActive: true
+            );
+
+            await store.SaveClientAndPasswordAsync(clientRecord, passwordHash, ct);
+
+            Log.Information("Nova conta registrada com armazenamento segregado para {Email} (UserId={UserId})", email, userId);
 
             return Results.Created("/api/v1/auth/me", new
             {
@@ -292,7 +336,10 @@ try
     .WithName("RegistrarUsuario")
     .WithTags("Autenticação");
 
-    app.MapPost("/api/v1/auth/login", async (LoginUserRequest request) =>
+    app.MapPost("/api/v1/auth/login", async (
+        LoginUserRequest request,
+        ClientCredentialStore store,
+        CancellationToken ct) =>
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
         {
@@ -301,50 +348,36 @@ try
 
         var email = request.Email.Trim().ToLowerInvariant();
 
-        using var connection = new SqliteConnection(sqliteConnectionString);
-        await connection.OpenAsync();
-
-        var cmd = connection.CreateCommand();
-        cmd.CommandText = @"
-            SELECT Id, Name, Email, PasswordHash, ApiKey, CreatedAt
-            FROM Users
-            WHERE lower(Email) = $email AND IsActive = 1
-            LIMIT 1;";
-        cmd.Parameters.AddWithValue("$email", email);
-
-        using var reader = await cmd.ExecuteReaderAsync();
-        if (!await reader.ReadAsync())
+        // 1. Consulta os dados cadastrais do cliente em Storage/Clients/clients.json
+        var client = await store.GetClientByEmailAsync(email, ct);
+        if (client is null || !client.IsActive)
         {
             return Results.Unauthorized();
         }
 
-        var userId = reader.GetInt64(0);
-        var name = reader.GetString(1);
-        var storedEmail = reader.GetString(2);
-        var passwordHash = reader.GetString(3);
-        var apiKey = reader.GetString(4);
-        var createdAt = reader.GetString(5);
-
-        if (!ProgramAuthHelpers.VerifyPassword(request.Password, passwordHash))
+        // 2. Cruza o UserId para buscar o hash PBKDF2 em Storage/Credentials/passwords.json
+        var passwordHash = await store.GetPasswordHashByUserIdAsync(client.UserId, ct);
+        if (string.IsNullOrWhiteSpace(passwordHash) ||
+            !ProgramAuthHelpers.VerifyPassword(request.Password, passwordHash))
         {
             return Results.Unauthorized();
         }
 
         return Results.Ok(new
         {
-            userId,
-            name,
-            email = storedEmail,
-            apiKey,
-            createdAt
+            userId = client.UserId,
+            name = client.Name,
+            email = client.Email,
+            apiKey = client.ApiKey,
+            createdAt = client.CreatedAt
         });
     })
     .WithName("LoginUsuario")
     .WithTags("Autenticação");
 
-    app.MapGet("/api/v1/auth/me", async (HttpContext context) =>
+    app.MapGet("/api/v1/auth/me", async (HttpContext context, ClientCredentialStore store) =>
     {
-        var user = await ProgramAuthHelpers.ResolveUserFromRequestAsync(context, sqliteConnectionString);
+        var user = await ProgramAuthHelpers.ResolveUserFromRequestAsync(context, sqliteConnectionString, store);
         if (user.UserId is null)
         {
             return Results.Unauthorized();
@@ -364,11 +397,11 @@ try
     // ==========================================
     // CONSULTA E CADASTRO DE ALVOS MONITORADOS
     // ==========================================
-    app.MapGet("/api/v1/targets", async (HttpContext context) =>
+    app.MapGet("/api/v1/targets", async (HttpContext context, ClientCredentialStore store) =>
     {
         try
         {
-            var user = await ProgramAuthHelpers.ResolveUserFromRequestAsync(context, sqliteConnectionString);
+            var user = await ProgramAuthHelpers.ResolveUserFromRequestAsync(context, sqliteConnectionString, store);
             var hasApiKeyHeader = !string.IsNullOrWhiteSpace(context.Request.Headers["X-Api-Key"].FirstOrDefault());
             if (hasApiKeyHeader && user.UserId is null)
             {
@@ -424,14 +457,14 @@ try
     .WithName("ListarAlvos")
     .WithTags("Monitoramento Autônomo");
 
-    app.MapPost("/api/v1/targets", async (HttpContext context, CreateTargetRequest request) =>
+    app.MapPost("/api/v1/targets", async (HttpContext context, CreateTargetRequest request, ClientCredentialStore store) =>
     {
         if (string.IsNullOrWhiteSpace(request.Url))
         {
             return Results.BadRequest(new { erro = "A URL é obrigatória." });
         }
 
-        var user = await ProgramAuthHelpers.ResolveUserFromRequestAsync(context, sqliteConnectionString);
+        var user = await ProgramAuthHelpers.ResolveUserFromRequestAsync(context, sqliteConnectionString, store);
         var hasApiKeyHeader = !string.IsNullOrWhiteSpace(context.Request.Headers["X-Api-Key"].FirstOrDefault());
         if (hasApiKeyHeader && user.UserId is null)
         {
@@ -610,12 +643,15 @@ try
     .WithName("EscanearAlvoPorId")
     .WithTags("Monitoramento Autônomo");
 
-    app.MapPost("/api/v1/scanner/typosquatting", async (HttpContext context, TyposquattingRequest request) =>
+    app.MapPost("/api/v1/scanner/typosquatting", async (
+        HttpContext context,
+        TyposquattingRequest request,
+        ClientCredentialStore store) =>
     {
         if (string.IsNullOrWhiteSpace(request.Domain))
             return Results.BadRequest(new { erro = "O domínio base é obrigatório." });
 
-        var user = await ProgramAuthHelpers.ResolveUserFromRequestAsync(context, sqliteConnectionString);
+        var user = await ProgramAuthHelpers.ResolveUserFromRequestAsync(context, sqliteConnectionString, store);
         var hasApiKeyHeader = !string.IsNullOrWhiteSpace(context.Request.Headers["X-Api-Key"].FirstOrDefault());
         if (hasApiKeyHeader && user.UserId is null)
             return Results.Unauthorized();
@@ -883,12 +919,28 @@ public static class ProgramAuthHelpers
 
     public static async Task<(long? UserId, string? Email, string? Name, string? ApiKey)> ResolveUserFromRequestAsync(
         HttpContext context,
-        string sqliteConnectionString)
+        string sqliteConnectionString,
+        ClientCredentialStore store)
     {
         var apiKeyHeader = context.Request.Headers["X-Api-Key"].FirstOrDefault();
         if (string.IsNullOrWhiteSpace(apiKeyHeader))
             return (null, null, null, null);
 
+        var trimmedKey = apiKeyHeader.Trim();
+
+        // 1. Consulta primeiro o arquivo segregado de clientes
+        var clientFromStore = await store.GetClientByApiKeyAsync(trimmedKey, context.RequestAborted);
+        if (clientFromStore is not null)
+        {
+            return (
+                clientFromStore.UserId,
+                clientFromStore.Email,
+                clientFromStore.Name,
+                clientFromStore.ApiKey
+            );
+        }
+
+        // 2. Fallback para registros legados no SQLite
         using var conn = new SqliteConnection(sqliteConnectionString);
         await conn.OpenAsync();
 
@@ -898,7 +950,7 @@ public static class ProgramAuthHelpers
             FROM Users
             WHERE ApiKey = $apiKey AND IsActive = 1
             LIMIT 1;";
-        cmd.Parameters.AddWithValue("$apiKey", apiKeyHeader.Trim());
+        cmd.Parameters.AddWithValue("$apiKey", trimmedKey);
 
         using var reader = await cmd.ExecuteReaderAsync();
         if (!await reader.ReadAsync())
