@@ -166,6 +166,14 @@ app.MapGet("/api/v1/monitors/history", (HttpRequest http, GuardiaWebStore store)
 });
 
 app.MapGet("/api/v1/agent/devices", (GuardiaWebStore store) => Results.Ok(store.GetDevices()));
+app.MapPost("/api/v1/agent/event", (AgentEventPayload payload, GuardiaWebStore store) =>
+{
+    var entry = store.RecordAgentEvent(payload);
+    return Results.Ok(entry);
+});
+
+app.MapGet("/api/v1/agent/events", (GuardiaWebStore store) => Results.Ok(store.GetAgentEvents()));
+
 app.MapPost("/api/v1/agent/heartbeat", (AgentHeartbeatPayload payload, GuardiaWebStore store) => Results.Ok(store.RecordHeartbeat(payload)));
 
 app.Run();
@@ -174,6 +182,8 @@ record AuthRegisterRequest(string? Name, string Email, string Password);
 record AuthLoginRequest(string Email, string Password);
 record MonitorCreateRequest(string Url, string? Label);
 record AgentHeartbeatPayload(string? DeviceId, string? Hostname, string? Os, string? Status);
+record AgentEventPayload(string? DeviceId, string? Hostname, string? EventType, string? TargetOrFile, string? RiskSummary, bool HasRisk, DateTimeOffset? DetectedAtUtc);
+record AgentEventEntry(string Id, string DeviceId, string Hostname, string EventType, string TargetOrFile, string RiskSummary, bool HasRisk, DateTime DetectedAtUtc);
 
 record UserRecord(string Name, string Email, string PasswordHash, string SaltBase64, string SessionKey);
 
@@ -215,6 +225,7 @@ sealed class GuardiaWebStore
     private readonly ConcurrentDictionary<string, UserRecord> _users = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<MonitorEntry> _monitors = new();
     private readonly List<MonitorHistoryEntry> _history = new();
+    private readonly List<AgentEventEntry> _agentEvents = new();
 
     public GuardiaWebStore(IWebHostEnvironment env)
     {
@@ -389,6 +400,37 @@ sealed class GuardiaWebStore
 
     public IEnumerable<AgentDeviceEntry> GetDevices() => _devices.Values.OrderByDescending(d => d.LastSeenUtc).ToList();
 
+    public AgentEventEntry RecordAgentEvent(AgentEventPayload payload)
+    {
+        lock (_sync)
+        {
+            var entry = new AgentEventEntry(
+                Guid.NewGuid().ToString("N")[..12],
+                string.IsNullOrWhiteSpace(payload.DeviceId) ? "agent-unknown" : payload.DeviceId.Trim(),
+                string.IsNullOrWhiteSpace(payload.Hostname) ? Environment.MachineName : payload.Hostname.Trim(),
+                string.IsNullOrWhiteSpace(payload.EventType) ? "download" : payload.EventType.Trim(),
+                string.IsNullOrWhiteSpace(payload.TargetOrFile) ? "arquivo-desconhecido" : payload.TargetOrFile.Trim(),
+                string.IsNullOrWhiteSpace(payload.RiskSummary) ? "Evento reportado pelo agente" : payload.RiskSummary.Trim(),
+                payload.HasRisk,
+                (payload.DetectedAtUtc ?? DateTimeOffset.UtcNow).UtcDateTime
+            );
+
+            _agentEvents.Insert(0, entry);
+            if (_agentEvents.Count > 100)
+                _agentEvents.RemoveRange(100, _agentEvents.Count - 100);
+
+            Save();
+            return entry;
+        }
+    }
+
+    public IEnumerable<AgentEventEntry> GetAgentEvents()
+    {
+        lock (_sync)
+        {
+            return _agentEvents.Take(50).ToList();
+        }
+    }
     public AgentDeviceEntry RecordHeartbeat(AgentHeartbeatPayload payload)
     {
         var id = string.IsNullOrWhiteSpace(payload.DeviceId) ? Guid.NewGuid().ToString("N")[..10] : payload.DeviceId.Trim();
@@ -452,3 +494,4 @@ sealed class GuardiaWebStore
         catch { }
     }
 }
+

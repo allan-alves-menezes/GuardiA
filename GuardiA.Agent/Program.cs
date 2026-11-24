@@ -1,4 +1,4 @@
-// Program.cs
+﻿// Program.cs
 using GuardiA.Agent;
 using GuardiA.Agent.Services;
 
@@ -21,6 +21,7 @@ builder.Services.AddHttpClient("GuardiaApi", client =>
 });
 
 builder.Services.AddSingleton<SystemTelemetryCollector>();
+builder.Services.AddSingleton<DownloadRiskWatcher>();
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();

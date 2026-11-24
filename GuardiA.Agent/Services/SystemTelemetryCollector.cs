@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -18,7 +18,7 @@ public sealed class SystemTelemetryCollector(ILogger<SystemTelemetryCollector> l
         }
         catch (Exception ex)
         {
-            logger.LogDebug(ex, "Falha ao coletar conexões TCP ativas.");
+            logger.LogDebug(ex, "Falha ao coletar conexÃµes TCP ativas.");
         }
 
         var memUsedPercent = GetMemoryUsedPercent();
@@ -39,8 +39,15 @@ public sealed class SystemTelemetryCollector(ILogger<SystemTelemetryCollector> l
             defenderStatus = await TryGetDefenderRealTimeStatusAsync(ct);
         }
 
+        var defenderEnabled = string.Equals(defenderStatus, "True", StringComparison.OrdinalIgnoreCase);
+        var hasSecurityWarning = (publicFw == false) || (defenderStatus is not null && !defenderEnabled && defenderStatus != "Desconhecido");
+
         return new AgentHeartbeatPayload
         {
+            DeviceId = $"{clientId}-{Environment.MachineName.ToLowerInvariant()}",
+            Hostname = Environment.MachineName,
+            Os = OperatingSystem.IsWindows() ? "Windows" : RuntimeInformation.OSDescription,
+            Status = hasSecurityWarning ? "Alerta" : "Online",
             ClientId = clientId,
             MachineName = Environment.MachineName,
             OsDescription = RuntimeInformation.OSDescription,
@@ -113,7 +120,7 @@ public sealed class SystemTelemetryCollector(ILogger<SystemTelemetryCollector> l
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Não foi possível consultar perfis do Windows Firewall.");
+            logger.LogWarning(ex, "NÃ£o foi possÃ­vel consultar perfis do Windows Firewall.");
             return (null, null, null);
         }
     }
@@ -128,8 +135,8 @@ public sealed class SystemTelemetryCollector(ILogger<SystemTelemetryCollector> l
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Não foi possível consultar status do Windows Defender.");
-            return "Indisponível";
+            logger.LogWarning(ex, "NÃ£o foi possÃ­vel consultar status do Windows Defender.");
+            return "IndisponÃ­vel";
         }
     }
 
