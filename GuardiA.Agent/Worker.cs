@@ -34,7 +34,6 @@ public sealed class Worker(
                 var payload = await collector.CollectAsync(clientId, stoppingToken);
                 var response = await client.PostAsJsonAsync("/api/v1/agent/heartbeat", payload, stoppingToken);
                 logger.LogInformation("Heartbeat enviado para {Machine} | HTTP: {StatusCode}",
-                logger.LogInformation("Heartbeat enviado para {Machine} | HTTP: {StatusCode}",
                     payload.Hostname, (int)response.StatusCode);
 
                 foreach (var ev in downloadWatcher.DrainEvents())
@@ -51,4 +50,3 @@ public sealed class Worker(
         }
     }
 }
-
